@@ -31,11 +31,16 @@ const FasiProduzioniCard: React.FC = () =>{
     const[fasi, setFasi]= useState<FaseProduzione[]>([]);
    
 
-    useEffect(() =>{
-        axios.get("http://localhost:8080/fasi-produzione")
-        .then((response) =>setFasi(response.data))
-        .catch((error) =>(console.log(error)))
-    }),([])
+   useEffect(() => {
+  axios.get("http://localhost:8080/fasi-produzione")
+    .then((response) => {
+      setFasi(response.data.content || []); 
+    })
+    .catch((error) => {
+      console.log(error);
+      setFasi([]); 
+    });
+}, []);
 
 
      return (

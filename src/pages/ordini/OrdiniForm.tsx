@@ -59,9 +59,9 @@ const etichetteOptions = etichette.map((et) => ({
 
   
   useEffect (() =>{
-    axios.get("http://localhost:8080/clienti").then((response) => setClienti(response.data));
-    axios.get("http://localhost:8080/operatori").then((response) => setOperatori(response.data));
-    axios.get("http://localhost:8080/etichette").then((response) => setEtichette(response.data));
+    axios.get("http://localhost:8080/clienti").then((response) => setClienti(response.data.content));
+    axios.get("http://localhost:8080/operatori").then((response) => setOperatori(response.data.content));
+    axios.get("http://localhost:8080/etichette").then((response) => setEtichette(response.data.content));
   }, [])
     
 
