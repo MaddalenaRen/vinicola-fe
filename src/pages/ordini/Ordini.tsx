@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import OrdiniForm from "./OrdiniForm";
-{/*import OrdiniTable from "../ordini/OrdiniTable";*/}
+
+{
+  /*import OrdiniTable from "../ordini/OrdiniTable";*/
+}
 
 const Ordini = () => {
   const [reload, setReload] = useState(false);
 
-  
   const handleSuccess = () => {
     setReload(!reload);
   };
@@ -13,7 +15,7 @@ const Ordini = () => {
   return (
     <div className="container mt-4">
       <h2>Gestione Ordini</h2>
-      
+
       <OrdiniForm onSuccess={handleSuccess} />
 
       <hr />

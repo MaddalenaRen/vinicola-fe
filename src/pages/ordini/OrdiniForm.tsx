@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Select from "react-select";
 
-interface OrdiniFormProps{
-    onSuccess: () =>void;
+interface OrdiniFormProps {
+  onSuccess: () => void;
 }
 
 interface Cliente {
@@ -12,11 +12,11 @@ interface Cliente {
   cognome: string;
 }
 
-interface Operatore{
-    id: number;
-    nome: string;
-    cognome: string;
-    reparto: string;
+interface Operatore {
+  id: number;
+  nome: string;
+  cognome: string;
+  reparto: string;
 }
 
 interface Etichette {
@@ -28,8 +28,7 @@ interface Etichette {
   dataImbottigliamento: Date;
 }
 
-const OrdiniForm: React.FC<OrdiniFormProps> = ({ onSuccess }) =>{
-    
+const OrdiniForm: React.FC<OrdiniFormProps> = ({ onSuccess }) => {
   const [quantita, setQuantita] = useState<number>(1);
   const [dataOrdine, setDataOrdine] = useState<string>("");
   const [dataConsegna, setDataConsegna] = useState<string>("");
@@ -43,34 +42,38 @@ const OrdiniForm: React.FC<OrdiniFormProps> = ({ onSuccess }) =>{
   const [etichette, setEtichette] = useState<Etichette[]>([]);
 
   const clienteOptions = clienti.map((cliente) => ({
-  value: cliente.id.toString(),
-  label: `${cliente.nome} ${cliente.cognome}`,
-}));
+    value: cliente.id.toString(),
+    label: `${cliente.nome} ${cliente.cognome}`,
+  }));
 
-const operatoreOptions = operatori.map((op) => ({
-  value: op.id.toString(),
-  label: `${op.nome} ${op.cognome}`,
-}));
+  const operatoreOptions = operatori.map((op) => ({
+    value: op.id.toString(),
+    label: `${op.nome} ${op.cognome}`,
+  }));
 
-const etichetteOptions = etichette.map((et) => ({
-  value: et.id.toString(),
-  label: et.nome || et.tipologiaVino || `Prodotto #${et.id}`,
-}));
+  const etichetteOptions = etichette.map((et) => ({
+    value: et.id.toString(),
+    label: et.nome || et.tipologiaVino || `Prodotto #${et.id}`,
+  }));
 
-  
-  useEffect (() =>{
-    axios.get("http://localhost:8080/clienti").then((response) => setClienti(response.data.content));
-    axios.get("http://localhost:8080/operatori").then((response) => setOperatori(response.data.content));
-    axios.get("http://localhost:8080/etichette").then((response) => setEtichette(response.data.content));
-  }, [])
-    
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/clienti")
+      .then((response) => setClienti(response.data.content));
+    axios
+      .get("http://localhost:8080/operatori")
+      .then((response) => setOperatori(response.data.content));
+    axios
+      .get("http://localhost:8080/etichette")
+      .then((response) => setEtichette(response.data.content));
+  }, []);
 
-     const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrore("");
 
     try {
-      await axios.post("http://localhost:8080/ordini/create", {
+      await axios.post("http://localhost:8080/ordini", {
         quantita,
         dataOrdine,
         dataConsegna,
@@ -85,7 +88,7 @@ const etichetteOptions = etichette.map((et) => ({
     }
   };
 
-    return (
+  return (
     <div className="container mt-4">
       <form onSubmit={handleSubmit} className="row g-3">
         <div className="col-md-6">
@@ -122,36 +125,41 @@ const etichetteOptions = etichette.map((et) => ({
 
         <div className="col-md-6">
           <label className="form-label">Cliente</label>
-            <Select
-                options={clienteOptions}
-                onChange={(option) => setClienteId(option?.value || "")}
-                value={clienteOptions.find(opt => opt.value === clienteId) || null}
-                placeholder="Seleziona un cliente..."
-                isClearable
-            />
-
+          <Select
+            options={clienteOptions}
+            onChange={(option) => setClienteId(option?.value || "")}
+            value={
+              clienteOptions.find((opt) => opt.value === clienteId) || null
+            }
+            placeholder="Seleziona un cliente..."
+            isClearable
+          />
         </div>
 
         <div className="col-md-6">
           <label className="form-label">Operatore</label>
           <Select
-                options={operatoreOptions}
-                onChange={(option) => setOperatoreId(option?.value || "")}
-                value={operatoreOptions.find(opt => opt.value === operatoreId) || null}
-                placeholder="Seleziona un operatore..."
-                isClearable
-            />
+            options={operatoreOptions}
+            onChange={(option) => setOperatoreId(option?.value || "")}
+            value={
+              operatoreOptions.find((opt) => opt.value === operatoreId) || null
+            }
+            placeholder="Seleziona un operatore..."
+            isClearable
+          />
         </div>
 
         <div className="col-md-6">
           <label className="form-label">Etichette</label>
-            <Select
-                options={etichetteOptions}
-                onChange={(option) => setEtichetteId(option?.value || "")}
-                value={etichetteOptions.find(opt => opt.value === etichetteId) || null}
-                placeholder="Seleziona un prodotto..."
-                isClearable
-            />
+          <Select
+            options={etichetteOptions}
+            onChange={(option) => setEtichetteId(option?.value || "")}
+            value={
+              etichetteOptions.find((opt) => opt.value === etichetteId) || null
+            }
+            placeholder="Seleziona un prodotto..."
+            isClearable
+          />
         </div>
 
         {errore && (
@@ -169,12 +177,5 @@ const etichetteOptions = etichette.map((et) => ({
     </div>
   );
 };
-
-
-
-
-
-
-
 
 export default OrdiniForm;

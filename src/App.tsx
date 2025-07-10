@@ -1,17 +1,15 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CustomNavbar from "./components/CustomNavbar";
 import CustomFooter from "./components/CustomFooter";
-
 
 import Login from "./pages/Login";
 import Operatori from "./pages/operatori/Operatori";
 import Clienti from "./pages/clienti/Clienti";
 import Ordini from "./pages/ordini/Ordini";
 import Bottiglie from "./pages/bottiglie/Bottiglie";
-import Etichette from "./pages/Etichette";
+import Etichette from "./etichette/Etichette";
 import FasiProduzione from "./pages/fasiProduzione/FasiProduzione";
-import Home from "./pages/Home"; 
+import Home from "./pages/Home";
 
 function App() {
   return (
@@ -37,5 +35,3 @@ function App() {
 }
 
 export default App;
-
-
