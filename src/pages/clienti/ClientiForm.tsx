@@ -1,9 +1,22 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
+interface Cliente {
+  id?: number;
+  nome: string;
+  cognome: string;
+  email: string;
+  numeroTelefono: string;
+  partitaIva?: string;
+  tipoCliente: "PRIVATO" | "AZIENDA";
+}
+
 interface ClientiFormProps {
-  onSuccess: () => void;
-  cliente?: any;
+  onSuccess: (
+    tipo: "success" | "warning" | "danger",
+    messaggio: string
+  ) => void;
+  cliente?: Cliente;
 }
 
 const ClientiForm: React.FC<ClientiFormProps> = ({ onSuccess, cliente }) => {
@@ -18,9 +31,6 @@ const ClientiForm: React.FC<ClientiFormProps> = ({ onSuccess, cliente }) => {
     cliente?.tipoCliente || "PRIVATO"
   );
 
-  const [errore, setErrore] = useState("");
-  const [successo, setSuccesso] = useState("");
-
   useEffect(() => {
     if (cliente) {
       setNome(cliente.nome);
@@ -29,15 +39,25 @@ const ClientiForm: React.FC<ClientiFormProps> = ({ onSuccess, cliente }) => {
       setNumeroTelefono(cliente.numeroTelefono);
       setPartitaIva(cliente.partitaIva || "");
       setTipoCliente(cliente.tipoCliente);
+    } else {
+      resetForm();
     }
   }, [cliente]);
 
+  const resetForm = () => {
+    setNome("");
+    setCognome("");
+    setEmail("");
+    setNumeroTelefono("");
+    setPartitaIva("");
+    setTipoCliente("PRIVATO");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrore("");
+
     try {
       if (cliente?.id) {
-        // UPDATE
         await axios.put(`http://localhost:8080/clienti/${cliente.id}`, {
           nome,
           cognome,
@@ -46,10 +66,9 @@ const ClientiForm: React.FC<ClientiFormProps> = ({ onSuccess, cliente }) => {
           partitaIva: tipoCliente === "AZIENDA" ? partitaIva : "",
           tipoCliente,
         });
-        setSuccesso("Cliente modificato con successo");
+        onSuccess("warning", "Cliente modificato con successo");
       } else {
-        // CREATE
-        await axios.post("http://localhost:8080/clienti", {
+        await axios.post(`http://localhost:8080/clienti`, {
           nome,
           cognome,
           email,
@@ -57,19 +76,16 @@ const ClientiForm: React.FC<ClientiFormProps> = ({ onSuccess, cliente }) => {
           partitaIva: tipoCliente === "AZIENDA" ? partitaIva : "",
           tipoCliente,
         });
-        setSuccesso("Cliente creato con successo");
+        onSuccess("success", "Cliente creato con successo");
+        resetForm();
       }
-      onSuccess();
-      // reset
     } catch (err) {
-      setErrore("Errore durante il salvataggio");
+      onSuccess("danger", "Errore durante il salvataggio");
     }
   };
 
   return (
     <div className="container mt-4">
-      {successo && <div className="alert alert-success">{successo}</div>}
-      {errore && <div className="alert alert-danger">{errore}</div>}
       <form onSubmit={handleSubmit} className="row g-3 justify-content-center">
         <div className="col-md-6">
           <label className="form-label">Nome</label>
@@ -142,11 +158,6 @@ const ClientiForm: React.FC<ClientiFormProps> = ({ onSuccess, cliente }) => {
           </div>
         )}
 
-        {errore && (
-          <div className="col-12">
-            <p className="text-danger">{errore}</p>
-          </div>
-        )}
         <div className="col-12 text-center">
           <button type="submit" className="btn btn-primary">
             {cliente ? "Modifica Cliente" : "Crea Cliente"}
@@ -158,3 +169,4 @@ const ClientiForm: React.FC<ClientiFormProps> = ({ onSuccess, cliente }) => {
 };
 
 export default ClientiForm;
+

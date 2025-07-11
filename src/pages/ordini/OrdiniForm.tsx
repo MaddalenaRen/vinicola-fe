@@ -21,7 +21,7 @@ interface Operatore {
 
 interface Etichette {
   id: number;
-  nome: string;
+  nomeEtichetta: string;
   nomeCantina: string;
   tipologiaVino: string;
   gradazioneAlcolica: number;
@@ -53,7 +53,7 @@ const OrdiniForm: React.FC<OrdiniFormProps> = ({ onSuccess }) => {
 
   const etichetteOptions = etichette.map((et) => ({
     value: et.id.toString(),
-    label: et.nome || et.tipologiaVino || `Prodotto #${et.id}`,
+    label: et.nomeEtichetta || et.tipologiaVino || `Prodotto #${et.id}`,
   }));
 
   useEffect(() => {

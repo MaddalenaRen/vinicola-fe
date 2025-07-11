@@ -1,61 +1,80 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-interface OperatoriFormProps {
-  onSuccess: () => void;
-  cliente?: any;
+interface Operatore {
+  id?: number;
+  nome: string;
+  cognome: string;
+  reparto: string;
+  numeroTelefono?: string;
+  utenteId?: string | number;
 }
 
-const OperatoriForm: React.FC<OperatoriFormProps> = ({
-  onSuccess,
-  operatore,
-}) => {
-  const [nome, setNome] = useState(operatore?.nome || "");
-  const [cognome, setCognome] = useState(operatore?.cognome || "");
-  const [reparto, setReparto] = useState(operatore?.reparto || "");
-  const [numeroTelefono, setNumeroTelefono] = useState(
-    operatore?.numeroTelefono || ""
-  );
-  const [utenteId, setUtenteId] = useState(operatore?.utenteId || "");
+interface OperatoriFormProps {
+  onSuccess: () => void;
+  operatore?: Operatore | null; 
+}
+
+const OperatoriForm: React.FC<OperatoriFormProps> = ({ onSuccess, operatore }) => {
+  const [nome, setNome] = useState("");
+  const [cognome, setCognome] = useState("");
+  const [reparto, setReparto] = useState("");
+  const [numeroTelefono, setNumeroTelefono] = useState("");
+  const [utenteId, setUtenteId] = useState("");
 
   const [errore, setErrore] = useState("");
   const [successo, setSuccesso] = useState("");
 
   useEffect(() => {
     if (operatore) {
-      setNome(operatore.nome);
-      setCognome(operatore.cognome);
-      setReparto(operatore.reparto);
-      setNumeroTelefono(operatore.numeroTelefono);
-      setUtenteId(operatore.utenteId);
+      setNome(operatore.nome || "");
+      setCognome(operatore.cognome || "");
+      setReparto(operatore.reparto || "");
+      setNumeroTelefono(operatore.numeroTelefono || "");
+      setUtenteId(operatore.utenteId?.toString() || "");
+    } else {
+      resetForm();
     }
   }, [operatore]);
+
+  const resetForm = () => {
+    setNome("");
+    setCognome("");
+    setReparto("");
+    setNumeroTelefono("");
+    setUtenteId("");
+    setErrore("");
+    setSuccesso("");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrore("");
+    setSuccesso("");
     try {
       if (operatore?.id) {
-        // UPDATE
+       
         await axios.put(`http://localhost:8080/operatori/${operatore.id}`, {
           nome,
           cognome,
           reparto,
           numeroTelefono,
+          utenteId,
         });
         setSuccesso("Operatore modificato con successo");
       } else {
-        // CREATE
+        
         await axios.post("http://localhost:8080/operatori", {
           nome,
           cognome,
           reparto,
           numeroTelefono,
+          utenteId,
         });
         setSuccesso("Operatore creato con successo");
       }
       onSuccess();
-      // reset
+      resetForm();
     } catch (err) {
       setErrore("Errore durante il salvataggio");
     }
@@ -119,11 +138,6 @@ const OperatoriForm: React.FC<OperatoriFormProps> = ({
           />
         </div>
 
-        {errore && (
-          <div className="col-12">
-            <p className="text-danger">{errore}</p>
-          </div>
-        )}
         <div className="col-12 text-center">
           <button type="submit" className="btn btn-primary">
             {operatore ? "Modifica Operatore" : "Crea Operatore"}
@@ -135,3 +149,4 @@ const OperatoriForm: React.FC<OperatoriFormProps> = ({
 };
 
 export default OperatoriForm;
+
