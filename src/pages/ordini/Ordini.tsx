@@ -53,7 +53,7 @@ const Ordini = () => {
 
   const caricaOrdini = async (pagina:number) => {
     try {
-      const response = await axiosInstance.get("http://localhost:8080/ordini?page=" +
+      const response = await axiosInstance.get("https://extended-celeste-rennella-d07bc04c.koyeb.app/ordini?page=" +
           (pagina - 1));
       setOrdini(response.data.content);
       setPageCount(response.data.totalPages);
@@ -101,7 +101,7 @@ const Ordini = () => {
     if (!result.isConfirmed) return;
 
     try {
-      await axiosInstance.delete(`http://localhost:8080/ordini/${ordine.id}`);
+      await axiosInstance.delete(`https://extended-celeste-rennella-d07bc04c.koyeb.app/ordini/${ordine.id}`);
       setMessaggioAlert({
         tipo: "success",
         messaggio: "Ordine eliminato con successo",

@@ -82,7 +82,7 @@ const EtichetteForm: React.FC<EtichetteFormProps> = ({
 
       if (etichetta?.id) {
         await axiosInstance.put(
-          `http://localhost:8080/etichette/${etichetta.id}`,
+          `https://extended-celeste-rennella-d07bc04c.koyeb.app/etichette/${etichetta.id}`,
 
           { ...payload, id: etichetta.id }
         );
@@ -98,7 +98,7 @@ const EtichetteForm: React.FC<EtichetteFormProps> = ({
         onSuccess();
         resetForm();
       } else {
-        await axiosInstance.post("http://localhost:8080/etichette", payload);
+        await axiosInstance.post("https://extended-celeste-rennella-d07bc04c.koyeb.app/etichette", payload);
         setMessaggioAlert({
           tipo: "success",
           messaggio: "Etichetta creata con successo",
