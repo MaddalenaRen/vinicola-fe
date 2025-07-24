@@ -19,12 +19,6 @@ interface Etichetta {
   nomeEtichetta: string;
 }
 
-interface FaseProduzione {
-  id: number;
-  tipoFase: string;
-  key: string;
-}
-
 interface FaseProduzioneOption {
   id: string;
   descrizione: string;
