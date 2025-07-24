@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-
+import axiosInstance from "../../api/axiosConfig";
 
 interface Etichetta {
   id?: number;
@@ -8,36 +7,37 @@ interface Etichetta {
   tipologiaVino: string;
   gradazioneAlcolica: number;
   dataImbottigliamento: string;
-  cantinaId?: number;
 }
 
 interface EtichetteFormProps {
-  onSuccess: (
-    tipo: "success" | "warning" | "danger",
-    messaggio: string
-  ) => void;
+  onSuccess: () => void;
   etichetta?: Etichetta | null;
+  setMessaggioAlert: React.Dispatch<
+    React.SetStateAction<{
+      tipo: "success" | "warning" | "danger";
+      messaggio: string;
+    } | null>
+  >;
 }
 
 const EtichetteForm: React.FC<EtichetteFormProps> = ({
   onSuccess,
   etichetta,
+  setMessaggioAlert,
 }) => {
   const [nomeEtichetta, setNomeEtichetta] = useState("");
   const [tipologiaVino, setTipologiaVino] = useState("");
-  const [gradazioneAlcolica, setGradazioneAlcolica] = useState<number>(0);
+  const [gradazioneAlcolica, setGradazioneAlcolica] = useState<string>("0");
   const [dataImbottigliamento, setDataImbottigliamento] = useState("");
-  const [cantinaId, setCantinaId] = useState<number | "">("");
 
   useEffect(() => {
     if (etichetta) {
       setNomeEtichetta(etichetta.nomeEtichetta || "");
       setTipologiaVino(etichetta.tipologiaVino || "");
-      setGradazioneAlcolica(etichetta.gradazioneAlcolica || 0);
+      setGradazioneAlcolica(String(etichetta.gradazioneAlcolica ?? "0"));
       setDataImbottigliamento(
         etichetta.dataImbottigliamento?.split("T")[0] || ""
       );
-      setCantinaId(etichetta.cantinaId || "");
     } else {
       resetForm();
     }
@@ -46,16 +46,27 @@ const EtichetteForm: React.FC<EtichetteFormProps> = ({
   const resetForm = () => {
     setNomeEtichetta("");
     setTipologiaVino("");
-    setGradazioneAlcolica(0);
+    setGradazioneAlcolica("0");
     setDataImbottigliamento("");
-    setCantinaId("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (gradazioneAlcolica < 0 || gradazioneAlcolica > 25) {
-      onSuccess("danger", "La gradazione alcolica deve essere tra 0 e 25.");
+    const gradazioneAlcolicaNum = parseFloat(gradazioneAlcolica);
+
+    if (
+      isNaN(gradazioneAlcolicaNum) ||
+      gradazioneAlcolicaNum < 0 ||
+      gradazioneAlcolicaNum > 25
+    ) {
+      setMessaggioAlert({
+        tipo: "danger",
+        messaggio: "La gradazione alcolica deve essere tra 0 e 25 gradi",
+      });
+      setTimeout(() => {
+        setMessaggioAlert(null);
+      }, 4000);
       return;
     }
 
@@ -63,28 +74,50 @@ const EtichetteForm: React.FC<EtichetteFormProps> = ({
       const payload = {
         nomeEtichetta,
         tipologiaVino,
-        gradazioneAlcolica,
+        gradazioneAlcolica: gradazioneAlcolicaNum,
         dataImbottigliamento,
-        cantinaId: cantinaId !== "" ? parseInt(cantinaId.toString()) : null,
         lottiId: [],
         ordineEtichetteId: [],
       };
 
       if (etichetta?.id) {
-        await axios.put(`http://localhost:8080/etichette/${etichetta.id}`, {
-          ...payload,
-          id: etichetta.id,
-        });
+        await axiosInstance.put(
+          `http://localhost:8080/etichette/${etichetta.id}`,
 
-        onSuccess("warning", "Etichetta modificata con successo.");
+          { ...payload, id: etichetta.id }
+        );
+
+        setMessaggioAlert({
+          tipo: "warning",
+          messaggio: "Etichetta modificata con successo",
+        });
+        setTimeout(() => {
+          setMessaggioAlert(null);
+        }, 4000);
+
+        onSuccess();
+        resetForm();
       } else {
-        await axios.post("http://localhost:8080/etichette", payload);
-        onSuccess("success", "Etichetta creata con successo.");
+        await axiosInstance.post("http://localhost:8080/etichette", payload);
+        setMessaggioAlert({
+          tipo: "success",
+          messaggio: "Etichetta creata con successo",
+        });
+        setTimeout(() => {
+          setMessaggioAlert(null);
+        }, 4000);
+        onSuccess();
         resetForm();
       }
     } catch (err) {
       console.error(err);
-      onSuccess("danger", "Errore durante il salvataggio. Riprova più tardi.");
+      setMessaggioAlert({
+        tipo: "danger",
+        messaggio: "Errore durante il salvataggio, riprova più tardi",
+      });
+      setTimeout(() => {
+        setMessaggioAlert(null);
+      }, 4000);
     }
   };
 
@@ -127,9 +160,7 @@ const EtichetteForm: React.FC<EtichetteFormProps> = ({
             min="0"
             max="25"
             value={gradazioneAlcolica}
-            onChange={(e) =>
-              setGradazioneAlcolica(parseFloat(e.target.value) || 0)
-            }
+            onChange={(e) => setGradazioneAlcolica(e.target.value)}
             required
           />
         </div>
@@ -145,20 +176,8 @@ const EtichetteForm: React.FC<EtichetteFormProps> = ({
           />
         </div>
 
-        <div className="col-md-6">
-          <label className="form-label">Cantina ID</label>
-          <input
-            type="number"
-            className="form-control"
-            value={cantinaId}
-            onChange={(e) =>
-              setCantinaId(e.target.value ? parseInt(e.target.value) : "")
-            }
-          />
-        </div>
-
         <div className="col-12 text-center">
-          <button type="submit" className="btn btn-primary">
+          <button type="submit" className="custom-button btn-salva">
             {etichetta ? "Modifica Etichetta" : "Crea Etichetta"}
           </button>
         </div>

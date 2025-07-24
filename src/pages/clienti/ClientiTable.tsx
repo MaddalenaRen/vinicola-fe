@@ -1,27 +1,49 @@
-import * as React from 'react';
+import * as React from "react";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  Button, Typography, Box, useMediaQuery} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Typography,
+  Box,
+  useMediaQuery,
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+
 
 interface Cliente {
-  id: number;
+  id?: number;
   nome: string;
   cognome: string;
   email: string;
   numeroTelefono: string;
-  tipoCliente: string;
+  partitaIva?: string;
+  tipoCliente: "PRIVATO" | "AZIENDA";
 }
 
 interface ClientiTableProps {
   clienti: Cliente[];
   onEdit: (cliente: Cliente) => void;
   onDelete: (cliente: Cliente) => void;
+  page: number;
+  pageCount: number;
+  onPageChange: (nuovaPagina: number) => void;
 }
 
-const ClientiTable: React.FC<ClientiTableProps> = ({ clienti, onEdit, onDelete }) => {
+const ClientiTable: React.FC<ClientiTableProps> = ({
+  clienti,
+  onEdit,
+  onDelete,
+  page,
+  pageCount,
+  onPageChange,
+}) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
     <Box mt={2}>
@@ -30,28 +52,39 @@ const ClientiTable: React.FC<ClientiTableProps> = ({ clienti, onEdit, onDelete }
       </Typography>
 
       {isMobile ? (
-        
         <Box display="flex" flexDirection="column" gap={2}>
           {clienti.map((c) => (
             <Paper key={c.id} elevation={3} sx={{ p: 2 }}>
-              <Typography><strong>Nome:</strong> {c.nome}</Typography>
-              <Typography><strong>Cognome:</strong> {c.cognome}</Typography>
-              <Typography><strong>Email:</strong> {c.email}</Typography>
-              <Typography><strong>Telefono:</strong> {c.numeroTelefono}</Typography>
-              <Typography><strong>Tipo:</strong> {c.tipoCliente}</Typography>
+              <Typography>
+                <strong>Nome:</strong> {c.nome}
+              </Typography>
+              <Typography>
+                <strong>Cognome:</strong> {c.cognome}
+              </Typography>
+              <Typography>
+                <strong>Email:</strong> {c.email}
+              </Typography>
+              <Typography>
+                <strong>Telefono:</strong> {c.numeroTelefono}
+              </Typography>
+              <Typography>
+                <strong>Tipo:</strong> {c.tipoCliente}
+              </Typography>
+              <Typography>
+                <strong>Partita IVA:</strong>{" "}
+                {c.tipoCliente === "AZIENDA" ? c.partitaIva || "—" : "—"}
+              </Typography>
               <Box mt={1} display="flex" gap={1}>
                 <Button
-                  fullWidth
-                  variant="contained"
-                  color="warning"
+                  className="custom-button btn-modifica w-100"
+                  size="small"
                   onClick={() => onEdit(c)}
                 >
                   Modifica
                 </Button>
                 <Button
-                  fullWidth
-                  variant="contained"
-                  color="error"
+                  className="custom-button btn-elimina w-100"
+                  size="small"
                   onClick={() => onDelete(c)}
                 >
                   Elimina
@@ -61,10 +94,7 @@ const ClientiTable: React.FC<ClientiTableProps> = ({ clienti, onEdit, onDelete }
           ))}
         </Box>
       ) : (
-      
-
-
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{ overflowX: "auto" }}>
           <Table size="small">
             <TableHead>
               <TableRow>
@@ -73,6 +103,7 @@ const ClientiTable: React.FC<ClientiTableProps> = ({ clienti, onEdit, onDelete }
                 <TableCell>Email</TableCell>
                 <TableCell>Telefono</TableCell>
                 <TableCell>Tipo</TableCell>
+                <TableCell>Partita IVA</TableCell>
                 <TableCell align="center">Azioni</TableCell>
               </TableRow>
             </TableHead>
@@ -81,22 +112,39 @@ const ClientiTable: React.FC<ClientiTableProps> = ({ clienti, onEdit, onDelete }
                 <TableRow key={c.id} hover>
                   <TableCell>{c.nome}</TableCell>
                   <TableCell>{c.cognome}</TableCell>
-                  <TableCell>{c.email}</TableCell>
+                  <TableCell
+                    sx={{
+                      maxWidth: 200,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {c.email}
+                  </TableCell>
                   <TableCell>{c.numeroTelefono}</TableCell>
                   <TableCell>{c.tipoCliente}</TableCell>
+                  <TableCell
+                    sx={{
+                      maxWidth: 200,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {c.tipoCliente === "AZIENDA" ? c.partitaIva || "—" : "—"}
+                  </TableCell>
                   <TableCell align="center">
                     <Box display="flex" gap={1} justifyContent="center">
                       <Button
-                        variant="contained"
-                        color="warning"
+                        className="custom-button btn-modifica w-100"
                         size="small"
                         onClick={() => onEdit(c)}
                       >
                         Modifica
                       </Button>
                       <Button
-                        variant="contained"
-                        color="error"
+                        className="custom-button btn-elimina w-100"
                         size="small"
                         onClick={() => onDelete(c)}
                       >
@@ -110,9 +158,36 @@ const ClientiTable: React.FC<ClientiTableProps> = ({ clienti, onEdit, onDelete }
           </Table>
         </TableContainer>
       )}
+
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        gap={2}
+        mt={2}
+      >
+        <Button
+          className="custom-button btn-nav"
+          onClick={() => onPageChange(page - 1)}
+          disabled={page === 1}
+        >
+          Prev
+        </Button>
+
+        <Typography>
+          Pagina {page} di {pageCount}
+        </Typography>
+
+        <Button
+          className="custom-button btn-nav"
+          onClick={() => onPageChange(page + 1)}
+          disabled={page === pageCount}
+        >
+          Next
+        </Button>
+      </Box>
     </Box>
   );
 };
 
 export default ClientiTable;
-

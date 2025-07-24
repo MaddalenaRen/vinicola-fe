@@ -1,37 +1,41 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import CustomNavbar from "./components/CustomNavbar";
-import CustomFooter from "./components/CustomFooter";
-
+import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
+
+import Layout from "./pages/Layout";
+import Dashboard from "./pages/Dashboard";
 import Operatori from "./pages/operatori/Operatori";
 import Clienti from "./pages/clienti/Clienti";
 import Ordini from "./pages/ordini/Ordini";
 import Etichette from "./pages/etichette/Etichette";
-import FasiProduzione from "./pages/fasiProduzione/FasiProduzione";
-import Home from "./pages/Home";
 import LottiVino from "./pages/lottiVino/LottiVino";
+import { Navigate } from "react-router-dom";
 
 function App() {
   return (
     <Router>
-      <div className="d-flex flex-column min-vh-100">
-        <CustomNavbar />
-        <main className="flex-grow-1 bg-main">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/operatori" element={<Operatori />} />
-            <Route path="/clienti" element={<Clienti />} />
-            <Route path="/ordini" element={<Ordini />} />
-            <Route path="/lotti-vino" element={<LottiVino />} />
-            <Route path="/etichette" element={<Etichette />} />
-            <Route path="/fasi-produzione" element={<FasiProduzione />} />
-          </Routes>
-        </main>
-        <CustomFooter />
-      </div>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+
+        <Route
+          element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/operatori" element={<Operatori />} />
+          <Route path="/clienti" element={<Clienti />} />
+          <Route path="/ordini" element={<Ordini />} />
+          <Route path="/lotti-vino" element={<LottiVino />} />
+          <Route path="/etichette" element={<Etichette />} />
+        </Route>
+      </Routes>
     </Router>
   );
 }
 
 export default App;
+

@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import EtichetteForm from "./EtichetteForm";
 import EtichetteTable from "./EtichetteTable";
-import axios from "axios";
+import axiosInstance from "../../api/axiosConfig";
 import Swal from "sweetalert2";
 
 interface Etichetta {
@@ -10,43 +10,65 @@ interface Etichetta {
   tipologiaVino: string;
   gradazioneAlcolica: number;
   dataImbottigliamento: string;
-  cantinaId: number;
+  
 }
 
 const Etichette = () => {
   const [etichette, setEtichette] = useState<Etichetta[]>([]);
-  const [etichettaSelezionata, setEtichettaSelezionata] =
-    useState<Etichetta | null>(null);
-  const [alert, setAlert] = useState<{
+  const [etichettaSelezionata, setEtichettaSelezionata] = useState<Etichetta | null>(null);
+  const [searchNomeEtichetta, setSearchNomeEtichetta] = useState("");
+  const [messaggioAlert, setMessaggioAlert] = useState<{
     tipo: "success" | "warning" | "danger";
     messaggio: string;
   } | null>(null);
 
-  const caricaEtichette = async () => {
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState(1);
+
+
+  const formRef = useRef<HTMLDivElement>(null);
+
+  const caricaEtichette = async (pagina: number) => {
     try {
-      const response = await axios.get("http://localhost:8080/etichette");
+      const response = await axiosInstance.get("http://localhost:8080/etichette?page=" + (pagina - 1) + "&nomeEtichetta="+searchNomeEtichetta);
       setEtichette(response.data.content);
+      setPageCount(response.data.totalPages);
+      setPage(pagina);
+      
     } catch (error) {
       console.error("Errore nel caricamento delle etichette:", error);
     }
   };
 
   useEffect(() => {
-    caricaEtichette();
+    caricaEtichette(1);
   }, []);
 
-  const handleSuccess = (
-    tipo: "success" | "warning" | "danger",
-    messaggio: string
-  ) => {
-    caricaEtichette();
-    setEtichettaSelezionata(null);
-    setAlert({ tipo, messaggio });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    setTimeout(() => setAlert(null), 3000);
+  const handlePageChange = (nuovaPagina: number) => {
+    if (nuovaPagina < 1 || nuovaPagina > pageCount) return;
+     caricaEtichette(nuovaPagina);
   };
 
-  const handleDeleteEtichetta = async (etichetta: any) => {
+  const handleSuccess = () => {
+    caricaEtichette(page);
+    setEtichettaSelezionata(null);
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleEditEtichetta = (etichetta: Etichetta) => {
+    setEtichettaSelezionata(etichetta);
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleDeleteEtichetta = async (etichetta: Etichetta) => {
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+
     const result = await Swal.fire({
       title: "Sei sicuro?",
       text: `Vuoi eliminare ${etichetta.nomeEtichetta}?`,
@@ -61,15 +83,18 @@ const Etichette = () => {
     if (!result.isConfirmed) return;
 
     try {
-      await axios.delete(`http://localhost:8080/etichette/${etichetta.id}`);
-      setAlert({
-        tipo: "danger",
+      await axiosInstance.delete(`http://localhost:8080/etichette/${etichetta.id}`);
+      setMessaggioAlert({
+        tipo: "success",
         messaggio: "Etichetta eliminata con successo",
       });
-      setTimeout(() => setAlert(null), 3000);
-      caricaEtichette();
+      setTimeout(() => setMessaggioAlert(null), 4000);
+      caricaEtichette(page);
     } catch (err) {
-      setAlert({ tipo: "danger", messaggio: "Errore durante l'eliminazione" });
+      setMessaggioAlert({
+        tipo: "danger",
+        messaggio: "Errore durante l'eliminazione",
+      });
       console.error("Errore durante l'eliminazione dell'etichetta:", err);
     }
   };
@@ -77,21 +102,47 @@ const Etichette = () => {
   return (
     <div className="container">
       <h2>Gestione Etichette</h2>
-      {alert && (
-        <div className={`alert alert-${alert.tipo}`} role="alert">
-          {alert.messaggio}
+
+      {messaggioAlert && (
+        <div
+          className={`alert alert-${messaggioAlert.tipo} alert-dismissible fade show`}
+          role="alert"
+        >
+          {messaggioAlert.messaggio}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setMessaggioAlert(null)}
+          ></button>
         </div>
       )}
 
-      <EtichetteForm
-        onSuccess={handleSuccess}
-        etichetta={etichettaSelezionata}
+      <div ref={formRef}>
+        <EtichetteForm
+          onSuccess={handleSuccess}
+          etichetta={etichettaSelezionata}
+          setMessaggioAlert={setMessaggioAlert}
+        />
+      </div>
+
+     <hr />
+      <input
+        type="text"
+        placeholder="Cerca per nome etichetta"
+        value={searchNomeEtichetta}
+        onChange={(e) => setSearchNomeEtichetta(e.target.value)}
       />
+      <button className="custom-button btn-cerca"  onClick={() => caricaEtichette(1)}>Cerca</button>
+
       <hr />
+
       <EtichetteTable
         etichette={etichette}
-        onEdit={setEtichettaSelezionata}
+        onEdit={handleEditEtichetta}
         onDelete={handleDeleteEtichetta}
+         page={page}
+        pageCount={pageCount}
+        onPageChange={handlePageChange}
       />
     </div>
   );

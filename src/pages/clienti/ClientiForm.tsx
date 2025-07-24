@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
+import axiosInstance from "../../api/axiosConfig";
 
-interface Cliente {
+export interface Cliente {
   id?: number;
   nome: string;
   cognome: string;
@@ -12,161 +12,184 @@ interface Cliente {
 }
 
 interface ClientiFormProps {
-  onSuccess: (
-    tipo: "success" | "warning" | "danger",
-    messaggio: string
-  ) => void;
-  cliente?: Cliente;
+  onSuccess: () => void;
+  cliente: Cliente | undefined;
+  setMessaggioAlert: React.Dispatch<
+    React.SetStateAction<{
+      tipo: "success" | "warning" | "danger";
+      messaggio: string;
+    } | null>
+  >;
 }
 
-const ClientiForm: React.FC<ClientiFormProps> = ({ onSuccess, cliente }) => {
-  const [nome, setNome] = useState(cliente?.nome || "");
-  const [cognome, setCognome] = useState(cliente?.cognome || "");
-  const [email, setEmail] = useState(cliente?.email || "");
-  const [numeroTelefono, setNumeroTelefono] = useState(
-    cliente?.numeroTelefono || ""
-  );
-  const [partitaIva, setPartitaIva] = useState(cliente?.partitaIva || "");
-  const [tipoCliente, setTipoCliente] = useState<"PRIVATO" | "AZIENDA">(
-    cliente?.tipoCliente || "PRIVATO"
-  );
+const ClientiForm: React.FC<ClientiFormProps> = ({
+  onSuccess,
+  cliente,
+  setMessaggioAlert,
+}) => {
+  const [formData, setFormData] = useState<Cliente>({
+    nome: "",
+    cognome: "",
+    email: "",
+    numeroTelefono: "",
+    partitaIva: "",
+    tipoCliente: "PRIVATO",
+  });
 
   useEffect(() => {
     if (cliente) {
-      setNome(cliente.nome);
-      setCognome(cliente.cognome);
-      setEmail(cliente.email);
-      setNumeroTelefono(cliente.numeroTelefono);
-      setPartitaIva(cliente.partitaIva || "");
-      setTipoCliente(cliente.tipoCliente);
+      setFormData(cliente);
     } else {
-      resetForm();
+      setFormData({
+        nome: "",
+        cognome: "",
+        email: "",
+        numeroTelefono: "",
+        partitaIva: "",
+        tipoCliente: "PRIVATO",
+      });
     }
   }, [cliente]);
 
-  const resetForm = () => {
-    setNome("");
-    setCognome("");
-    setEmail("");
-    setNumeroTelefono("");
-    setPartitaIva("");
-    setTipoCliente("PRIVATO");
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       if (cliente?.id) {
-        await axios.put(`http://localhost:8080/clienti/${cliente.id}`, {
-          nome,
-          cognome,
-          email,
-          numeroTelefono,
-          partitaIva: tipoCliente === "AZIENDA" ? partitaIva : "",
-          tipoCliente,
+        await axiosInstance.put(`/clienti/${cliente.id}`, formData);
+        setMessaggioAlert({
+          tipo: "warning",
+          messaggio: "Cliente modificato con successo",
         });
-        onSuccess("warning", "Cliente modificato con successo");
       } else {
-        await axios.post(`http://localhost:8080/clienti`, {
-          nome,
-          cognome,
-          email,
-          numeroTelefono,
-          partitaIva: tipoCliente === "AZIENDA" ? partitaIva : "",
-          tipoCliente,
+        await axiosInstance.post("/clienti", formData);
+        setMessaggioAlert({
+          tipo: "success",
+          messaggio: "Cliente creato con successo",
         });
-        onSuccess("success", "Cliente creato con successo");
-        resetForm();
       }
+
+      setTimeout(() => setMessaggioAlert(null), 4000);
+      onSuccess();
+      setFormData({
+        nome: "",
+        cognome: "",
+        email: "",
+        numeroTelefono: "",
+        partitaIva: "",
+        tipoCliente: "PRIVATO",
+      });
     } catch (err) {
-      onSuccess("danger", "Errore durante il salvataggio");
+      console.error("Errore nel salvataggio:", err);
+      setMessaggioAlert({
+        tipo: "danger",
+        messaggio: "Errore durante il salvataggio del cliente",
+      });
+      setTimeout(() => setMessaggioAlert(null), 4000);
     }
   };
 
   return (
-    <div className="container mt-4">
-      <form onSubmit={handleSubmit} className="row g-3 justify-content-center">
-        <div className="col-md-6">
+    <form onSubmit={handleSubmit} className="mb-4">
+      <div className="row">
+        <div className="col-md-6 mb-3">
           <label className="form-label">Nome</label>
           <input
             type="text"
+            name="nome"
             className="form-control"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
+            value={formData.nome}
+            onChange={handleChange}
             required
           />
         </div>
 
-        <div className="col-md-6">
+        <div className="col-md-6 mb-3">
           <label className="form-label">Cognome</label>
           <input
             type="text"
+            name="cognome"
             className="form-control"
-            value={cognome}
-            onChange={(e) => setCognome(e.target.value)}
+            value={formData.cognome}
+            onChange={handleChange}
             required
           />
         </div>
 
-        <div className="col-md-6">
+        <div className="col-md-6 mb-3">
           <label className="form-label">Email</label>
           <input
             type="email"
+            name="email"
             className="form-control"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={formData.email}
+            onChange={handleChange}
             required
           />
         </div>
 
-        <div className="col-md-6">
-          <label className="form-label">Telefono</label>
+        <div className="col-md-6 mb-3">
+          <label className="form-label">Numero di Telefono</label>
           <input
             type="text"
+            name="numeroTelefono"
             className="form-control"
-            value={numeroTelefono}
-            onChange={(e) => setNumeroTelefono(e.target.value)}
+            value={formData.numeroTelefono}
+            onChange={handleChange}
             required
           />
+          <small className="text-muted">
+              Inserire numero di telefono.
+            </small>
         </div>
 
-        <div className="col-md-6">
+        {formData.tipoCliente === "AZIENDA" && (
+          <div className="col-md-6 mb-3">
+            <label className="form-label">Partita IVA</label>
+            <input
+              type="text"
+              name="partitaIva"
+              className="form-control"
+              value={formData.partitaIva || ""}
+              onChange={handleChange}
+              pattern="\d{11}"
+              maxLength={11}
+              title="La Partita IVA deve contenere esattamente 11 cifre numeriche"
+            />
+            <small className="text-muted">
+              La Partita IVA deve contenere esattamente 11 cifre.
+            </small>
+          </div>
+        )}
+
+        <div className="col-md-6 mb-3">
           <label className="form-label">Tipo Cliente</label>
           <select
+            name="tipoCliente"
             className="form-select"
-            value={tipoCliente}
-            onChange={(e) =>
-              setTipoCliente(e.target.value as "PRIVATO" | "AZIENDA")
-            }
+            value={formData.tipoCliente}
+            onChange={handleChange}
             required
           >
             <option value="PRIVATO">Privato</option>
             <option value="AZIENDA">Azienda</option>
           </select>
         </div>
+      </div>
 
-        {tipoCliente === "AZIENDA" && (
-          <div className="col-md-6">
-            <label className="form-label">Partita IVA</label>
-            <input
-              type="text"
-              className="form-control"
-              value={partitaIva}
-              onChange={(e) => setPartitaIva(e.target.value)}
-            />
-          </div>
-        )}
-
-        <div className="col-12 text-center">
-          <button type="submit" className="btn btn-primary">
-            {cliente ? "Modifica Cliente" : "Crea Cliente"}
-          </button>
-        </div>
-      </form>
-    </div>
+      <div className="col-12 text-center">
+        <button type="submit" className="custom-button btn-salva">
+          {cliente ? "Modifica Cliente" : "Crea Cliente"}
+        </button>
+      </div>
+    </form>
   );
 };
 
 export default ClientiForm;
-

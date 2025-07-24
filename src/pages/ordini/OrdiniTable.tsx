@@ -15,13 +15,17 @@ import {
 import { useTheme } from "@mui/material/styles";
 
 interface Cliente {
+  id: number;
   nome: string;
   cognome: string;
+  numeroTelefono: string;
 }
 
 interface Operatore {
+  id: number;
   nome: string;
   cognome: string;
+  reparto: string;
 }
 
 interface Etichetta {
@@ -30,25 +34,32 @@ interface Etichetta {
 }
 
 interface Ordine {
-  id: number;
+  id?: number;
   quantita: string;
   dataOrdine: string;
   dataConsegna: string;
   cliente: Cliente;
   operatore: Operatore;
-  etichette: Etichetta[];
+  etichetta: Etichetta;
+  stato?: string;
 }
 
 interface OrdiniTableProps {
   ordini: Ordine[];
   onEdit: (ordine: Ordine) => void;
   onDelete: (ordine: Ordine) => void;
+  page: number;
+  pageCount: number;
+  onPageChange: (nuovaPagina: number) => void;
 }
 
 const OrdiniTable: React.FC<OrdiniTableProps> = ({
   ordini,
   onEdit,
   onDelete,
+   page,
+  pageCount,
+  onPageChange,
 }) => {
   console.log(ordini);
   const theme = useTheme();
@@ -81,34 +92,23 @@ const OrdiniTable: React.FC<OrdiniTableProps> = ({
                 {o.operatore?.cognome}
               </Typography>
               <Typography>
-                <strong>Etichette:</strong>{" "}
-                {o.etichette.map((etichetta, index) => (
-                  <span key={etichetta.id}>
-                    {etichetta.nomeEtichetta}
-                    {index < o.etichette.length - 1 ? ", " : ""}
-                  </span>
-                ))}
+                <strong>Etichetta:</strong> {o.etichetta.nomeEtichetta}
+              </Typography>
+              <Typography>
+                <strong>Stato:</strong> {o.stato ?? "N/A"}
               </Typography>
               <Box mt={1} display="flex" gap={1}>
                 <Button
-                  fullWidth
-                  variant="contained"
-                  color="warning"
-                  onClick={() => {
-                    console.log("Modifica cliccato su ordine", o);
-                    onEdit(o);
-                  }}
+                  className="custom-button btn-modifica w-100"
+                  size="small"
+                  onClick={() => onEdit(o)}
                 >
                   Modifica
                 </Button>
                 <Button
-                  fullWidth
-                  variant="contained"
-                  color="error"
-                  onClick={() => {
-                    console.log("Elimina cliccato su ordine", o);
-                    onDelete(o);
-                  }}
+                  className="custom-button btn-elimina w-100"
+                  size="small"
+                  onClick={() => onDelete(o)}
                 >
                   Elimina
                 </Button>
@@ -127,6 +127,7 @@ const OrdiniTable: React.FC<OrdiniTableProps> = ({
                 <TableCell>Cliente</TableCell>
                 <TableCell>Operatore</TableCell>
                 <TableCell>Etichette</TableCell>
+                <TableCell>Stato</TableCell>
                 <TableCell align="center">Azioni</TableCell>
               </TableRow>
             </TableHead>
@@ -142,30 +143,22 @@ const OrdiniTable: React.FC<OrdiniTableProps> = ({
                   <TableCell>
                     {o.operatore?.nome} {o.operatore?.cognome}
                   </TableCell>
-                  <TableCell>
-                   {JSON.stringify(o.etichette)}
-                  </TableCell>
+                  <TableCell>{o.etichetta.nomeEtichetta}</TableCell>
+                  <TableCell>{o.stato ?? "N/A"}</TableCell>
+
                   <TableCell align="center">
                     <Box display="flex" gap={1} justifyContent="center">
                       <Button
-                        variant="contained"
-                        color="warning"
+                        className="custom-button btn-modifica w-100"
                         size="small"
-                        onClick={() => {
-                          console.log("Modifica cliccato su ordine", o);
-                          onEdit(o);
-                        }}
+                        onClick={() => onEdit(o)}
                       >
                         Modifica
                       </Button>
                       <Button
-                        variant="contained"
-                        color="error"
+                        className="custom-button btn-elimina w-100"
                         size="small"
-                        onClick={() => {
-                          console.log("Elimina cliccato su ordine", o);
-                          onDelete(o);
-                        }}
+                        onClick={() => onDelete(o)}
                       >
                         Elimina
                       </Button>
@@ -177,6 +170,34 @@ const OrdiniTable: React.FC<OrdiniTableProps> = ({
           </Table>
         </TableContainer>
       )}
+
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        gap={2}
+        mt={2}
+      >
+        <Button
+          className="custom-button btn-nav"
+          onClick={() => onPageChange(page - 1)}
+          disabled={page === 1}
+        >
+          Prev
+        </Button>
+
+        <Typography>
+          Pagina {page} di {pageCount}
+        </Typography>
+
+        <Button
+          className="custom-button btn-nav"
+          onClick={() => onPageChange(page + 1)}
+          disabled={page === pageCount}
+        >
+          Next
+        </Button>
+      </Box>
     </Box>
   );
 };

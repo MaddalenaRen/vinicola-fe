@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../../api/axiosConfig";
 
 interface Operatore {
   id?: number;
@@ -12,18 +12,25 @@ interface Operatore {
 
 interface OperatoriFormProps {
   onSuccess: () => void;
-  operatore?: Operatore | null; 
+  operatore?: Operatore | null;
+  setMessaggioAlert: React.Dispatch<
+    React.SetStateAction<{
+      tipo: "success" | "warning" | "danger";
+      messaggio: string;
+    } | null>
+  >;
 }
 
-const OperatoriForm: React.FC<OperatoriFormProps> = ({ onSuccess, operatore }) => {
+const OperatoriForm: React.FC<OperatoriFormProps> = ({
+  onSuccess,
+  operatore,
+  setMessaggioAlert,
+}) => {
   const [nome, setNome] = useState("");
   const [cognome, setCognome] = useState("");
   const [reparto, setReparto] = useState("");
   const [numeroTelefono, setNumeroTelefono] = useState("");
   const [utenteId, setUtenteId] = useState("");
-
-  const [errore, setErrore] = useState("");
-  const [successo, setSuccesso] = useState("");
 
   useEffect(() => {
     if (operatore) {
@@ -43,47 +50,61 @@ const OperatoriForm: React.FC<OperatoriFormProps> = ({ onSuccess, operatore }) =
     setReparto("");
     setNumeroTelefono("");
     setUtenteId("");
-    setErrore("");
-    setSuccesso("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrore("");
-    setSuccesso("");
+    setMessaggioAlert(null);
     try {
       if (operatore?.id) {
-       
-        await axios.put(`http://localhost:8080/operatori/${operatore.id}`, {
-          nome,
-          cognome,
-          reparto,
-          numeroTelefono,
-          utenteId,
+        await axiosInstance.put(
+          `http://localhost:8080/operatori/${operatore.id}`,
+          {
+            nome,
+            cognome,
+            reparto,
+            numeroTelefono,
+            utenteId,
+          }
+        );
+        setMessaggioAlert({
+          tipo: "warning",
+          messaggio: "Operatore modificato con successo",
         });
-        setSuccesso("Operatore modificato con successo");
+        setTimeout(() => {
+          setMessaggioAlert(null);
+        }, 4000);
       } else {
-        
-        await axios.post("http://localhost:8080/operatori", {
+        await axiosInstance.post("http://localhost:8080/operatori", {
           nome,
           cognome,
           reparto,
           numeroTelefono,
           utenteId,
         });
-        setSuccesso("Operatore creato con successo");
+        setMessaggioAlert({
+          tipo: "success",
+          messaggio: "Operatore creato con successo",
+        });
+        setTimeout(() => {
+          setMessaggioAlert(null);
+        }, 4000);
       }
       onSuccess();
       resetForm();
     } catch (err) {
-      setErrore("Errore durante il salvataggio");
+      setMessaggioAlert({
+        tipo: "danger",
+        messaggio: "Errore durante il salvataggio",
+      });
+      setTimeout(() => {
+        setMessaggioAlert(null);
+      }, 4000);
     }
   };
 
   return (
     <div className="container mt-4">
-      {successo && <div className="alert alert-success">{successo}</div>}
-      {errore && <div className="alert alert-danger">{errore}</div>}
       <form onSubmit={handleSubmit} className="row g-3 justify-content-center">
         <div className="col-md-6">
           <label className="form-label">Nome</label>
@@ -128,18 +149,9 @@ const OperatoriForm: React.FC<OperatoriFormProps> = ({ onSuccess, operatore }) =
           />
         </div>
 
-        <div className="col-md-6">
-          <label className="form-label">Utente id</label>
-          <input
-            type="text"
-            className="form-control"
-            value={utenteId}
-            onChange={(e) => setUtenteId(e.target.value)}
-          />
-        </div>
 
         <div className="col-12 text-center">
-          <button type="submit" className="btn btn-primary">
+          <button type="submit" className="custom-button btn-salva">
             {operatore ? "Modifica Operatore" : "Crea Operatore"}
           </button>
         </div>
@@ -149,4 +161,3 @@ const OperatoriForm: React.FC<OperatoriFormProps> = ({ onSuccess, operatore }) =
 };
 
 export default OperatoriForm;
-

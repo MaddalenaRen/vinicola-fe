@@ -1,41 +1,68 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import ClientiForm from "./ClientiForm";
-import ClientiTable from "../clienti/ClientiTable";
-import axios from "axios";
+import ClientiTable from "./ClientiTable";
+import axiosInstance from "../../api/axiosConfig";
 import Swal from "sweetalert2";
 
+interface Cliente {
+  id?: number;
+  nome: string;
+  cognome: string;
+  email: string;
+  numeroTelefono: string;
+  partitaIva?: string;
+  tipoCliente: "PRIVATO" | "AZIENDA";
+}
+
 const Clienti = () => {
-  const [clienti, setClienti] = useState<any[]>([]);
-  const [clienteSelezionato, setClienteSelezionato] = useState(null);
-  const [alert, setAlert] = useState<{
+  const [clienti, setClienti] = useState<Cliente[]>([]);
+  const [clienteSelezionato, setClienteSelezionato] = useState<
+    Cliente | undefined
+  >(undefined);
+  const [searchNome, setSearchNome] = useState("");
+  const [messaggioAlert, setMessaggioAlert] = useState<{
     tipo: "success" | "warning" | "danger";
     messaggio: string;
   } | null>(null);
 
-  const caricaClienti = async () => {
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState(1);
+
+  const formRef = useRef<HTMLDivElement>(null);
+
+  const caricaClienti = async (pagina: number) => {
     try {
-      const response = await axios.get("http://localhost:8080/clienti");
+      const response = await axiosInstance.get("/clienti?page=" + (pagina - 1)+"&nome="+searchNome);
       setClienti(response.data.content);
+      setPageCount(response.data.totalPages);
+      setPage(pagina);
     } catch (error) {
       console.error("Errore nel caricamento clienti:", error);
     }
   };
 
   useEffect(() => {
-    caricaClienti();
+    caricaClienti(1);
   }, []);
 
-  const handleSuccess = (
-    tipo: "success" | "warning" | "danger",
-    messaggio: string
-  ) => {
-    caricaClienti();
-    setClienteSelezionato(null);
-    setAlert({ tipo, messaggio });
-    setTimeout(() => setAlert(null), 3000);
+  const handlePageChange = (nuovaPagina: number) => {
+    if (nuovaPagina < 1 || nuovaPagina > pageCount) return;
+    caricaClienti(nuovaPagina);
   };
 
-  const handleDeleteCliente = async (cliente: any) => {
+  const handleSuccess = () => {
+    caricaClienti(page);
+    setClienteSelezionato(undefined);
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleDeleteCliente = async (cliente: Cliente) => {
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+
     const result = await Swal.fire({
       title: "Sei sicuro?",
       text: `Vuoi eliminare ${cliente.nome} ${cliente.cognome}?`,
@@ -50,30 +77,77 @@ const Clienti = () => {
     if (!result.isConfirmed) return;
 
     try {
-      await axios.delete(`http://localhost:8080/clienti/${cliente.id}`);
-      setAlert({ tipo: "danger", messaggio: "Cliente eliminato con successo" });
-      setTimeout(() => setAlert(null), 3000);
-      caricaClienti();
-    } catch (err) {
-      setAlert({ tipo: "danger", messaggio: "Errore durante l'eliminazione" });
-      console.error("Errore durante l'eliminazione del cliente:", err);
+      await axiosInstance.delete(`/clienti/${cliente.id}`);
+      setMessaggioAlert({
+        tipo: "success",
+        messaggio: "Cliente eliminato con successo",
+      });
+      setTimeout(() => setMessaggioAlert(null), 4000);
+      caricaClienti(page);
+
+      if (clienteSelezionato?.id === cliente.id) {
+        setClienteSelezionato(undefined);
+      }
+    } catch (error) {
+      setMessaggioAlert({
+        tipo: "danger",
+        messaggio: "Errore durante l'eliminazione del cliente, potrebbe essere associato a uno o più ordini",
+      });
+      setTimeout(() => setMessaggioAlert(null), 4000);
+    }
+  };
+
+  const handleEditCliente = (cliente: Cliente) => {
+    setClienteSelezionato(cliente);
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
   return (
-    <div className="container">
+    <div className="container mt-4">
       <h2>Gestione Clienti</h2>
-      {alert && (
-        <div className={`alert alert-${alert.tipo}`} role="alert">
-          {alert.messaggio}
+
+      {messaggioAlert && (
+        <div
+          className={`alert alert-${messaggioAlert.tipo} alert-dismissible fade show`}
+          role="alert"
+        >
+          {messaggioAlert.messaggio}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setMessaggioAlert(null)}
+          ></button>
         </div>
       )}
-      <ClientiForm onSuccess={handleSuccess} cliente={clienteSelezionato} />
+
+      <div ref={formRef}>
+        <ClientiForm
+          onSuccess={handleSuccess}
+          cliente={clienteSelezionato}
+          setMessaggioAlert={setMessaggioAlert}
+        />
+      </div>
+
       <hr />
+      <input
+        type="text"
+        placeholder="Cerca per nome"
+        value={searchNome}
+        onChange={(e) => setSearchNome(e.target.value)}
+      />
+      <button className="custom-button btn-cerca" onClick={() => caricaClienti(1)}>Cerca</button>
+
+      <hr />
+
       <ClientiTable
         clienti={clienti}
-        onEdit={setClienteSelezionato}
+        onEdit={handleEditCliente}
         onDelete={handleDeleteCliente}
+        page={page}
+        pageCount={pageCount}
+        onPageChange={handlePageChange}
       />
     </div>
   );

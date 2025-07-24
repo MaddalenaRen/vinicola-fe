@@ -1,27 +1,47 @@
-import * as React from 'react';
+import * as React from "react";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Button, Typography, Box, useMediaQuery} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Typography,
+  Box,
+  useMediaQuery,
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 
 interface Operatore {
-  id: number;
+  id?: number;
   nome: string;
   cognome: string;
   reparto: string;
-  numeroTelefono: string;
-  utenteId: number;
+  numeroTelefono?: string;
+  utenteId?: string | number;
 }
 
 interface OperatoriTableProps {
   operatori: Operatore[];
   onEdit: (operatore: Operatore) => void;
-  onDelete: (operatore: Operatore) => void; 
+  onDelete: (operatore: Operatore) => void;
+  page: number;
+  pageCount: number;
+  onPageChange: (nuovaPagina: number) => void;
 }
 
-const OperatoriTable: React.FC<OperatoriTableProps> = ({ operatori, onEdit, onDelete }) => {
+const OperatoriTable: React.FC<OperatoriTableProps> = ({
+  operatori,
+  onEdit,
+  onDelete,
+  page,
+  pageCount,
+  onPageChange,
+}) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
     <Box mt={4}>
@@ -33,24 +53,29 @@ const OperatoriTable: React.FC<OperatoriTableProps> = ({ operatori, onEdit, onDe
         <Box display="flex" flexDirection="column" gap={2}>
           {operatori.map((o) => (
             <Paper key={o.id} elevation={3} sx={{ p: 2 }}>
-              <Typography><strong>Nome:</strong> {o.nome}</Typography>
-              <Typography><strong>Cognome:</strong> {o.cognome}</Typography>
-              <Typography><strong>Reparto:</strong> {o.reparto}</Typography>
-              <Typography><strong>Telefono:</strong> {o.numeroTelefono}</Typography>
-              <Typography><strong>Utente ID:</strong> {o.utenteId}</Typography>
+              <Typography>
+                <strong>Nome:</strong> {o.nome}
+              </Typography>
+              <Typography>
+                <strong>Cognome:</strong> {o.cognome}
+              </Typography>
+              <Typography>
+                <strong>Reparto:</strong> {o.reparto}
+              </Typography>
+              <Typography>
+                <strong>Telefono:</strong> {o.numeroTelefono}
+              </Typography>
               <Box mt={1} display="flex" gap={1}>
                 <Button
-                  fullWidth
-                  variant="contained"
-                  color="warning"
+                  className="custom-button btn-modifica w-100"
+                  size="small"
                   onClick={() => onEdit(o)}
                 >
                   Modifica
                 </Button>
                 <Button
-                  fullWidth
-                  variant="contained"
-                  color="error"
+                  className="custom-button btn-elimina w-100"
+                  size="small"
                   onClick={() => onDelete(o)}
                 >
                   Elimina
@@ -68,7 +93,7 @@ const OperatoriTable: React.FC<OperatoriTableProps> = ({ operatori, onEdit, onDe
                 <TableCell>Cognome</TableCell>
                 <TableCell>Reparto</TableCell>
                 <TableCell>Numero Telefono</TableCell>
-                <TableCell>Utente ID</TableCell>
+
                 <TableCell align="center">Azioni</TableCell>
               </TableRow>
             </TableHead>
@@ -79,20 +104,17 @@ const OperatoriTable: React.FC<OperatoriTableProps> = ({ operatori, onEdit, onDe
                   <TableCell>{o.cognome}</TableCell>
                   <TableCell>{o.reparto}</TableCell>
                   <TableCell>{o.numeroTelefono}</TableCell>
-                  <TableCell>{o.utenteId}</TableCell>
                   <TableCell align="center">
                     <Box display="flex" gap={1} justifyContent="center">
                       <Button
-                        variant="contained"
-                        color="warning"
+                        className="custom-button btn-modifica w-100"
                         size="small"
                         onClick={() => onEdit(o)}
                       >
                         Modifica
                       </Button>
                       <Button
-                        variant="contained"
-                        color="error"
+                        className="custom-button btn-elimina w-100"
                         size="small"
                         onClick={() => onDelete(o)}
                       >
@@ -106,9 +128,36 @@ const OperatoriTable: React.FC<OperatoriTableProps> = ({ operatori, onEdit, onDe
           </Table>
         </TableContainer>
       )}
+
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        gap={2}
+        mt={2}
+      >
+        <Button
+          className="custom-button btn-nav"
+          onClick={() => onPageChange(page - 1)}
+          disabled={page === 1}
+        >
+          Prev
+        </Button>
+
+        <Typography>
+          Pagina {page} di {pageCount}
+        </Typography>
+
+        <Button
+          className="custom-button btn-nav"
+          onClick={() => onPageChange(page + 1)}
+          disabled={page === pageCount}
+        >
+          Next
+        </Button>
+      </Box>
     </Box>
   );
 };
 
 export default OperatoriTable;
-

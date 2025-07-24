@@ -1,1 +1,142 @@
+body {
+  font-family: 'Roboto', sans-serif;
+}
 
+.custom-navbar .logo-container img {
+  height: 60px; 
+  max-width: 100px; 
+  object-fit: contain;
+}
+
+
+
+.fixed-height-chart-inner {
+  height: 380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.custom-navbar {
+  background: linear-gradient(90deg, #2b1f50, #7fa6d9); 
+  padding: 0.5rem 1rem;
+}
+
+.custom-navbar .navbar-brand {
+  font-weight: bold;
+  color: #A79C8C;
+  font-size: 1.4rem;
+}
+
+.custom-navbar .navbar-brand:hover {
+  color: #f8f5f5 !important; 
+ 
+}
+
+.custom-navbar .nav-link {
+  color:  #cdc9c9 !important;
+  transition: color 0.3s;
+}
+
+.custom-navbar .nav-link:hover {
+  color: #fefefe !important;
+}
+
+.custom-navbar .dropdown-menu {
+  background-color: #fff;
+  border-radius: 0.5rem;
+}
+
+.custom-footer {
+  background: linear-gradient(90deg, #2b1f50, #7fa6d9);
+  color: #fefefe;
+  text-align: center;
+  padding: 1rem;
+  margin-top: auto;
+  font-weight: 300;
+  font-size: 0.95rem;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.custom-footer p {
+  margin: 0;
+}
+
+.custom-button{
+  font-family: 'Roboto', sans-serif;
+   font-weight: 500 !important;
+  border-radius: 20px !important;
+  padding: 6px 22px !important; 
+  margin: 5px !important;
+  transition: all 0.3s ease-in-out !important;
+  border: none !important;
+  cursor: pointer !important;
+}
+
+
+
+.btn-modifica {
+
+  background-color: hwb(62 24% 25%) !important;
+  color: white !important;
+ 
+  
+  
+}
+
+.btn-modifica:hover {
+  background-color: #e1ec03 !important;
+}
+
+.btn-elimina {
+  background-color: #822724 !important;
+  color: white !important;
+}
+
+.btn-elimina:hover {
+  background-color: #ec3b35 !important;
+}
+
+.btn-nav {
+  border: 1px solid #2b1f50 !important;
+  color: #2b1f50 !important;
+  background-color: #ffffff !important;
+  font-weight: 500;
+  margin-bottom: 10px !important;
+}
+
+.btn-nav:hover {
+  background-color: #2b1f50 !important;
+  color: white !important;
+}
+
+
+.btn-cerca {
+  background-color: #5b94de;
+  color: white;
+  margin-left: 10px;
+}
+
+.btn-cerca:hover {
+  background-color: #4cae4c;
+}
+
+
+.btn-salva {
+  background-color: #403d79;
+  color: white;
+}
+
+.btn-salva:hover {
+  background-color: #4cae4c;
+}
+
+
+.btn-primary.custom-btn {
+  background-color: #5cb85c !important;
+  border-color: #4cae4c !important;
+}
