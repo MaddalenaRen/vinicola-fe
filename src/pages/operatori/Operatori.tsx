@@ -35,7 +35,7 @@ const Operatori = () => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(
-        "http://localhost:8080/operatori?page=" +
+        "https://extended-celeste-rennella-d07bc04c.koyeb.app/operatori?page=" +
           (pagina - 1) +
           "&nome=" +
           searchNome
@@ -87,7 +87,7 @@ const Operatori = () => {
 
     try {
       await axiosInstance.delete(
-        `http://localhost:8080/operatori/${operatore.id}`
+        `https://extended-celeste-rennella-d07bc04c.koyeb.app/operatori/${operatore.id}`
       );
 
       setMessaggioAlert({

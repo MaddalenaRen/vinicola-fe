@@ -20,12 +20,6 @@ interface Etichetta {
   nomeEtichetta: string;
 }
 
-interface FaseProduzione {
-  id: number;
-  tipoFase: string;
-  key: string;
-}
-
 interface FaseProduzioneOption {
   id: string;
   descrizione: string;
@@ -54,7 +48,7 @@ const LottiVino = () => {
   const caricaEtichette = async () => {
     try {
       const response = await axiosInstance.get(
-        "http://localhost:8080/etichette"
+        "https://extended-celeste-rennella-d07bc04c.koyeb.app/etichette"
       );
       setEtichette(response.data.content);
     } catch (error) {
@@ -65,7 +59,7 @@ const LottiVino = () => {
   const caricaFasiProduzione = async () => {
     try {
       const response = await axiosInstance.get(
-        "http://localhost:8080/fasi-produzione/tipo-fasi"
+        "https://extended-celeste-rennella-d07bc04c.koyeb.app/fasi-produzione/tipo-fasi"
       );
       setFasiProduzione(response.data || []);
     } catch (error) {
@@ -77,7 +71,7 @@ const LottiVino = () => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(
-        "http://localhost:8080/lotti-vino?page=" +
+        "https://extended-celeste-rennella-d07bc04c.koyeb.app/lotti-vino?page=" +
           (pagina - 1) +
           "&nome=" +
           searchNome
@@ -134,7 +128,7 @@ const LottiVino = () => {
 
     try {
       await axiosInstance.delete(
-        `http://localhost:8080/lotti-vino/${lottoVino.id}`
+        `https://extended-celeste-rennella-d07bc04c.koyeb.app/lotti-vino/${lottoVino.id}`
       );
       setMessaggioAlert({
         tipo: "success",

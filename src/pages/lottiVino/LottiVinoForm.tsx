@@ -75,7 +75,7 @@ const LottoVinoForm: React.FC<LottoVinoFormProps> = ({
     const fetchDati = async () => {
       try {
         const resEtichette = await axiosInstance.get(
-          "http://localhost:8080/etichette",
+          "https://extended-celeste-rennella-d07bc04c.koyeb.app/etichette",
           {
             params: {
               size: 1000,
@@ -84,7 +84,7 @@ const LottoVinoForm: React.FC<LottoVinoFormProps> = ({
           }
         );
         const resFasi = await axiosInstance.get(
-          "http://localhost:8080/fasi-produzione/tipo-fasi"
+          "https://extended-celeste-rennella-d07bc04c.koyeb.app/fasi-produzione/tipo-fasi"
         );
         setEtichette(resEtichette.data.content || []);
         setFasiProduzione(resFasi.data || []);
@@ -172,7 +172,7 @@ const LottoVinoForm: React.FC<LottoVinoFormProps> = ({
     try {
       if (lottoVino?.id) {
         await axiosInstance.put(
-          `http://localhost:8080/lotti-vino/${lottoVino.id}`,
+          `https://extended-celeste-rennella-d07bc04c.koyeb.app/lotti-vino/${lottoVino.id}`,
           data
         );
         setMessaggioAlert({
@@ -180,7 +180,7 @@ const LottoVinoForm: React.FC<LottoVinoFormProps> = ({
           messaggio: "Lotto modficato con successo",
         });
       } else {
-        await axiosInstance.post("http://localhost:8080/lotti-vino", data);
+        await axiosInstance.post("https://extended-celeste-rennella-d07bc04c.koyeb.app/lotti-vino", data);
         setMessaggioAlert({
           tipo: "success",
           messaggio: "Lotto creato con successo",

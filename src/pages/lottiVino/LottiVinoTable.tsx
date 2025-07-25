@@ -29,12 +29,6 @@ interface Etichetta {
   nomeEtichetta: string;
 }
 
-interface FaseProduzione {
-  id: number;
-  tipoFase: string;
-  key: string;
-}
-
 interface FaseProduzioneOption {
   id: string;
   descrizione: string;
@@ -53,7 +47,6 @@ interface LottiVinoTableProps {
 
 const LottiVinoTable: React.FC<LottiVinoTableProps> = ({
   lottiVino,
-  etichette,
   fasiProduzione,
   onEdit,
   onDelete,

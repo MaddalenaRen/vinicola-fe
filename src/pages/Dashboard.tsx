@@ -28,7 +28,7 @@ const Dashboard = () => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(
-        "http://localhost:8080/dashboard"
+        "https://extended-celeste-rennella-d07bc04c.koyeb.app/dashboard"
       );
       const data = response.data.faseLottiDto;
 

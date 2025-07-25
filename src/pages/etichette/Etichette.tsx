@@ -32,12 +32,10 @@ const Etichette = () => {
   const caricaEtichette = async (pagina: number) => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get(
-        "http://localhost:8080/etichette?page=" +
+      const response = await axiosInstance.get("https://extended-celeste-rennella-d07bc04c.koyeb.app/etichette?page=" +
           (pagina - 1) +
           "&nomeEtichetta=" +
-          searchNomeEtichetta
-      );
+          searchNomeEtichetta);
       setEtichette(response.data.content);
       setPageCount(response.data.totalPages);
       setPage(pagina);
@@ -91,9 +89,7 @@ const Etichette = () => {
     if (!result.isConfirmed) return;
 
     try {
-      await axiosInstance.delete(
-        `http://localhost:8080/etichette/${etichetta.id}`
-      );
+      await axiosInstance.delete(`https://extended-celeste-rennella-d07bc04c.koyeb.app/etichette/${etichetta.id}`);
       setMessaggioAlert({
         tipo: "success",
         messaggio: "Etichetta eliminata con successo",
