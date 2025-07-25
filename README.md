@@ -1,69 +1,33 @@
-# React + TypeScript + Vite
+- Gestionale per azienda produttrice di vino;
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
+- La gestione può avvenire solo tramite autenticazione e autorizzazione;
+- Per la valorizzazione della password dell'admin ho preferito utilizzare un update
+  per aggiornare la password sul db, la password criptata viene visualizzata sul log al momento del login
+- La gestione comprende la creazione,la modifica e l'eliminazione dei clienti, 
+  dei lotti, ordini,etichette e operatori;
+- La creazione e la modifica avvengono attraverso un form;
+- I dati sono di volta in volta rappresentati in una tabella;
+- Le tabelle in modalità responsive diventano delle card;
+- Gli ordini sono collegati a dei clienti e a degli operatori(reparto spedizione),
+  bisognerà quindi prima modificare l'ordine o eliminarlo qualora si volesse eliminare
+  un cliente o un operatore;
+- Infine è possibile nella dashboard avere un riepilogo delle informazioni riguardo i lotti e 
+  la percentuale di bottiglie che sono in determinate fasi, attreverso dei grafici che cambiano in base ai valori inseriti
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Expanding the ESLint configuration
+Credenziali con cui accedere, l'accesso è previsto solo per admin
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+email: "maddalena@email.com"
+password: "admin123"
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+link al backend: https://github.com/MaddalenaRen/vinicola-be
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+link deploy Vercel : https://vinicola-fe.vercel.app/
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+link deploy Koyeb : extended-celeste-rennella-d07bc04c.koyeb.app/
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+L'unica variabile d'ambiente è postgresql_password dove bisogna inserire la password del db
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+
