@@ -3,6 +3,7 @@ import ClientiForm from "./ClientiForm";
 import ClientiTable from "./ClientiTable";
 import axiosInstance from "../../api/axiosConfig";
 import Swal from "sweetalert2";
+import Spinner from "../../components/Spinner";
 
 interface Cliente {
   id?: number;
@@ -19,6 +20,7 @@ const Clienti = () => {
   const [clienteSelezionato, setClienteSelezionato] = useState<
     Cliente | undefined
   >(undefined);
+  const [loading, setLoading] = useState(false);
   const [searchNome, setSearchNome] = useState("");
   const [messaggioAlert, setMessaggioAlert] = useState<{
     tipo: "success" | "warning" | "danger";
@@ -31,13 +33,18 @@ const Clienti = () => {
   const formRef = useRef<HTMLDivElement>(null);
 
   const caricaClienti = async (pagina: number) => {
+    setLoading(true);
     try {
-      const response = await axiosInstance.get("/clienti?page=" + (pagina - 1)+"&nome="+searchNome);
+      const response = await axiosInstance.get(
+        "/clienti?page=" + (pagina - 1) + "&nome=" + searchNome
+      );
       setClienti(response.data.content);
       setPageCount(response.data.totalPages);
       setPage(pagina);
     } catch (error) {
       console.error("Errore nel caricamento clienti:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -91,7 +98,8 @@ const Clienti = () => {
     } catch (error) {
       setMessaggioAlert({
         tipo: "danger",
-        messaggio: "Errore durante l'eliminazione del cliente, potrebbe essere associato a uno o più ordini",
+        messaggio:
+          "Errore durante l'eliminazione del cliente, potrebbe essere associato a uno o più ordini",
       });
       setTimeout(() => setMessaggioAlert(null), 4000);
     }
@@ -105,7 +113,7 @@ const Clienti = () => {
   };
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4 relative min-h-screen">
       <h2>Gestione Clienti</h2>
 
       {messaggioAlert && (
@@ -122,33 +130,52 @@ const Clienti = () => {
         </div>
       )}
 
-      <div ref={formRef}>
-        <ClientiForm
-          onSuccess={handleSuccess}
-          cliente={clienteSelezionato}
-          setMessaggioAlert={setMessaggioAlert}
-        />
-      </div>
+      {loading && (
+        <div
+          className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <Spinner />
+        </div>
+      )}
 
-      <hr />
-      <input
-        type="text"
-        placeholder="Cerca per nome"
-        value={searchNome}
-        onChange={(e) => setSearchNome(e.target.value)}
-      />
-      <button className="custom-button btn-cerca" onClick={() => caricaClienti(1)}>Cerca</button>
+      {!loading && (
+        <>
+          <div ref={formRef}>
+            <ClientiForm
+              onSuccess={handleSuccess}
+              cliente={clienteSelezionato}
+              setMessaggioAlert={setMessaggioAlert}
+            />
+          </div>
 
-      <hr />
+          <hr />
+          <input
+            type="text"
+            placeholder="Cerca per nome"
+            value={searchNome}
+            onChange={(e) => setSearchNome(e.target.value)}
+          />
+          <button
+            className="custom-button btn-cerca"
+            onClick={() => caricaClienti(1)}
+          >
+            Cerca
+          </button>
 
-      <ClientiTable
-        clienti={clienti}
-        onEdit={handleEditCliente}
-        onDelete={handleDeleteCliente}
-        page={page}
-        pageCount={pageCount}
-        onPageChange={handlePageChange}
-      />
+          <hr />
+
+          <ClientiTable
+            clienti={clienti}
+            onEdit={handleEditCliente}
+            onDelete={handleDeleteCliente}
+            page={page}
+            pageCount={pageCount}
+            onPageChange={handlePageChange}
+          />
+        </>
+      )}
     </div>
   );
 };
