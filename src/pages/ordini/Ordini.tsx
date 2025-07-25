@@ -3,8 +3,7 @@ import Swal from "sweetalert2";
 import OrdiniForm from "./OrdiniForm";
 import OrdiniTable from "./OrdiniTable";
 import axiosInstance from "../../api/axiosConfig";
-
-
+import Spinner from "../../components/Spinner";
 
 interface Cliente {
   id: number;
@@ -38,8 +37,11 @@ interface Ordine {
 
 const Ordini = () => {
   const [ordini, setOrdini] = useState<Ordine[]>([]);
-  const [ordineSelezionato, setOrdineSelezionato] = useState<Ordine | undefined>(undefined);
-
+  const [ordineSelezionato, setOrdineSelezionato] = useState<
+    Ordine | undefined
+  >(undefined);
+  const [loading, setLoading] = useState(false);
+  const [searchCliente, setSearchCliente] = useState("");
   const [messaggioAlert, setMessaggioAlert] = useState<{
     tipo: "success" | "warning" | "danger";
     messaggio: string;
@@ -48,24 +50,26 @@ const Ordini = () => {
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(1);
 
-
   const formRef = useRef<HTMLDivElement>(null);
 
-  const caricaOrdini = async (pagina:number) => {
+  const caricaOrdini = async (pagina: number) => {
+    setLoading(true);
     try {
-      const response = await axiosInstance.get("http://localhost:8080/ordini?page=" +
-          (pagina - 1));
+      const response = await axiosInstance.get(
+         `http://localhost:8080/ordini?page=${pagina - 1}&cliente=${searchCliente}`
+      );
       setOrdini(response.data.content);
       setPageCount(response.data.totalPages);
       setPage(pagina);
     } catch (error) {
       console.error("Errore nel caricamento degli ordini:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     caricaOrdini(1);
-     
   }, []);
 
   const handlePageChange = (nuovaPagina: number) => {
@@ -143,27 +147,46 @@ const Ordini = () => {
         </div>
       )}
 
-      <div ref={formRef}>
-        <OrdiniForm
-          onSuccess={handleSuccess}
-          ordine={ordineSelezionato}
-          setMessaggioAlert={setMessaggioAlert}
-        />
-      </div>
+      {loading && <Spinner />}
 
-    
+      {loading ? (
+        <Spinner />
+      ) : (
+        <div ref={formRef}>
+          <OrdiniForm
+            onSuccess={handleSuccess}
+            ordine={ordineSelezionato}
+            setMessaggioAlert={setMessaggioAlert}
+          />
 
-      <OrdiniTable
-        ordini={ordini}
-        onEdit={handleEditOrdine}
-        onDelete={handleDeleteOrdine}
-         page={page}
-        pageCount={pageCount}
-        onPageChange={handlePageChange}
-      />
+          <hr />
+          <input
+            type="text"
+            placeholder="Cerca per nome o cognome cliente"
+            value={searchCliente}
+            onChange={(e) => setSearchCliente(e.target.value)}
+          />
+          <button
+            className="custom-button btn-cerca"
+            onClick={() => caricaOrdini(1)}
+          >
+            Cerca
+          </button>
+
+          <hr />
+
+          <OrdiniTable
+            ordini={ordini}
+            onEdit={handleEditOrdine}
+            onDelete={handleDeleteOrdine}
+            page={page}
+            pageCount={pageCount}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      )}
     </div>
   );
 };
 
 export default Ordini;
-

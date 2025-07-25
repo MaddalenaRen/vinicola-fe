@@ -2,6 +2,7 @@ import axiosInstance from "../api/axiosConfig";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Button, Alert } from "react-bootstrap";
+import Spinner from "../components/Spinner";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -9,16 +10,19 @@ function Login() {
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (e : any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setLoading(true);
 
     if (!email || !password) {
       setError("Inserisci l'email e la password.");
+      setLoading(false);
       return;
     }
 
@@ -47,58 +51,69 @@ function Login() {
         if (ruolo) sessionStorage.setItem("ruolo", ruolo);
       }
 
-    
-
       setSuccess("Login effettuato con successo!");
       navigate("/dashboard");
     } catch (err) {
       setError("Credenziali non valide.");
+    } finally {
+      setLoading(false);
     }
   };
   return (
-    <Form onSubmit={handleSubmit} style={{ maxWidth: 400, margin: "auto" }}>
-      <h2 className="mb-4 text-center">Accedi al tuo account</h2>
+    <>
+      {loading ? (
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ minHeight: "60vh" }}
+        >
+          <Spinner />
+        </div>
+      ) : (
+        <Form onSubmit={handleSubmit} style={{ maxWidth: 400, margin: "auto" }}>
+          <h2 className="mb-4 text-center">Accedi al tuo account</h2>
 
-      {error && <Alert variant="danger">{error}</Alert>}
-      {success && <Alert variant="success">{success}</Alert>}
+          {error && <Alert variant="danger">{error}</Alert>}
+          {success && <Alert variant="success">{success}</Alert>}
 
-      <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label>Email address</Form.Label>
-        <Form.Control
-          type="email"
-          placeholder="Inserisci la tua email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </Form.Group>
+          <Form.Group className="mb-3" controlId="formBasicEmail">
+            <Form.Label>Email address</Form.Label>
+            <Form.Control
+              type="email"
+              placeholder="Inserisci la tua email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </Form.Group>
 
-      <Form.Group className="mb-3" controlId="formBasicPassword">
-        <Form.Label>Password</Form.Label>
-        <Form.Control
-          type="password"
-          placeholder="Inserisci la password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </Form.Group>
+          <Form.Group className="mb-3" controlId="formBasicPassword">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Inserisci la password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Form.Group>
 
-      <Form.Group className="mb-3" controlId="formBasicCheckbox">
-        <Form.Check
-          type="checkbox"
-          label="Ricordami"
-          checked={remember}
-          onChange={(e) => setRemember(e.target.checked)}
-        />
-      </Form.Group>
+          <Form.Group className="mb-3" controlId="formBasicCheckbox">
+            <Form.Check
+              type="checkbox"
+              label="Ricordami"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+            />
+          </Form.Group>
 
-      <Button  type="submit" className="w-100 cusrom-button btn-salva ">
-        Accedi
-      </Button>
+          <Button type="submit" className="w-100 cusrom-button btn-salva">
+            Accedi
+          </Button>
 
-      <div className="mt-3 text-center">
-        <a href="#forgot-password">Hai dimenticato la password?</a>
-      </div>
-    </Form>
+          <div className="mt-3 text-center">
+            <a href="#forgot-password">Hai dimenticato la password?</a>
+          </div>
+        </Form>
+      )}
+    </>
   );
 }
 

@@ -3,6 +3,7 @@ import OperatoriForm from "./OperatoriForm";
 import OperatoriTable from "./OperatoriTable";
 import axiosInstance from "../../api/axiosConfig";
 import Swal from "sweetalert2";
+import Spinner from "../../components/Spinner";
 
 interface Operatore {
   id?: number;
@@ -18,6 +19,7 @@ const Operatori = () => {
   const [operatoreSelezionato, setOperatoreSelezionato] = useState<
     Operatore | undefined
   >(undefined);
+  const [loading, setLoading] = useState(false);
   const [searchNome, setSearchNome] = useState("");
   const [messaggioAlert, setMessaggioAlert] = useState<{
     tipo: "success" | "warning" | "danger";
@@ -30,6 +32,7 @@ const Operatori = () => {
   const formRef = useRef<HTMLDivElement>(null);
 
   const caricaOperatori = async (pagina: number) => {
+    setLoading(true);
     try {
       const response = await axiosInstance.get(
         "http://localhost:8080/operatori?page=" +
@@ -42,6 +45,8 @@ const Operatori = () => {
       setPage(pagina);
     } catch (error) {
       console.error("Errore nel caricamento operatori:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -130,38 +135,45 @@ const Operatori = () => {
           ></button>
         </div>
       )}
-      <div ref={formRef}>
-        <OperatoriForm
-          onSuccess={handleSuccess}
-          operatore={operatoreSelezionato}
-          setMessaggioAlert={setMessaggioAlert}
-        />
-      </div>
 
-      <hr />
-      <input
-        type="text"
-        placeholder="Cerca per nome"
-        value={searchNome}
-        onChange={(e) => setSearchNome(e.target.value)}
-      />
-      <button
-        className="custom-button btn-cerca"
-        onClick={() => caricaOperatori(1)}
-      >
-        Cerca
-      </button>
+      {loading && <Spinner />}
 
-      <hr />
+      {loading ? (
+        <Spinner />
+      ) : (
+        <div ref={formRef}>
+          <OperatoriForm
+            onSuccess={handleSuccess}
+            operatore={operatoreSelezionato}
+            setMessaggioAlert={setMessaggioAlert}
+          />
 
-      <OperatoriTable
-        operatori={operatori}
-        onEdit={handleEditOperatore}
-        onDelete={handleDeleteOperatore}
-        page={page}
-        pageCount={pageCount}
-        onPageChange={handlePageChange}
-      />
+          <hr />
+          <input
+            type="text"
+            placeholder="Cerca per nome"
+            value={searchNome}
+            onChange={(e) => setSearchNome(e.target.value)}
+          />
+          <button
+            className="custom-button btn-cerca"
+            onClick={() => caricaOperatori(1)}
+          >
+            Cerca
+          </button>
+
+          <hr />
+
+          <OperatoriTable
+            operatori={operatori}
+            onEdit={handleEditOperatore}
+            onDelete={handleDeleteOperatore}
+            page={page}
+            pageCount={pageCount}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      )}
     </div>
   );
 };

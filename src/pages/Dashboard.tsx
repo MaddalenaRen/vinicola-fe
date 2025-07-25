@@ -3,6 +3,7 @@ import { PieChart } from "@mui/x-charts/PieChart";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { useState, useEffect } from "react";
 import axiosInstance from "../api/axiosConfig";
+import Spinner from "../components/Spinner";
 
 interface FaseLottiDto {
   nomeLotto: string;
@@ -21,8 +22,10 @@ const Dashboard = () => {
   const [fasiLotti, setFasiLotti] = useState<FaseLottiDto[]>([]);
   const [chartValue, setChartValue] = useState<PieData[]>([]);
   const [chartBottiglie, setChartBottiglie] = useState<PieData[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const caricaFasiLotti = async () => {
+    setLoading(true);
     try {
       const response = await axiosInstance.get(
         "http://localhost:8080/dashboard"
@@ -51,6 +54,8 @@ const Dashboard = () => {
       setChartBottiglie(chartBottiglieTmp);
     } catch (error) {
       console.error("Errore nel caricamento delle fasi di produzione:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,65 +65,80 @@ const Dashboard = () => {
 
   return (
     <div className="container mt-4">
-      <h2 className="mb-4 text-center">Fasi di Produzione</h2>
-
-      <div className="row">
-        <div className="col-12 col-md-6 mb-4 fixed-height-chart">
-          <h3 className="text-center ">Distribuzione Lotti</h3>
-          <PieChart series={[{ data: chartValue }]} width={400} height={300} />
+      {loading ? (
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ height: "300px" }}
+        >
+          <Spinner />
         </div>
+      ) : (
+        <>
+          <h2 className="mb-4 text-center">Fasi di Produzione</h2>
 
-        <div className="col-12 col-md-6 mb-4 fixed-height-chart">
-          <h3 className="text-center ">Distribuzione Bottiglie</h3>
-          <BarChart
-            xAxis={[
-              {
-                scaleType: "band",
-                data: chartBottiglie.map((d) => d.label),
-              },
-            ]}
-            series={[
-              {
-                data: chartBottiglie.map((d) => d.value),
-                label: "Percentuale Bottiglie",
-              },
-            ]}
-            width={400}
-            height={300}
-          />
-        </div>
-      </div>
+          <div className="row">
+            <div className="col-12 col-md-6 mb-4 fixed-height-chart">
+              <h3 className="text-center">Distribuzione Lotti</h3>
+              <PieChart
+                series={[{ data: chartValue }]}
+                width={400}
+                height={300}
+              />
+            </div>
 
-      <div className="row">
-        <div className="col-12">
-          <Accordion defaultActiveKey="0" alwaysOpen>
-            {fasiLotti.map((fase, index) => (
-              <Accordion.Item eventKey={index.toString()} key={index}>
-                <Accordion.Header>
-                  <strong>{fase.nomeLotto}</strong>
-                </Accordion.Header>
-                <Accordion.Body>
-                  {fase.lotti.length > 0 ? (
-                    <ListGroup variant="flush">
-                      {fase.lotti.map((lotto, idx) => (
-                        <ListGroup.Item
-                          key={idx}
-                          className="d-flex justify-content-between align-items-center"
-                        >
-                          <span>{lotto}</span>
-                          <Badge bg="primary">In lavorazione</Badge>
-                        </ListGroup.Item>
-                      ))}
-                    </ListGroup>
-                  ) : (
-                    <p className="text-muted">Nessun lotto presente</p>
-                  )}
-                </Accordion.Body>
-              </Accordion.Item>
-            ))}
-          </Accordion>
-        </div>
-      </div>
+            <div className="col-12 col-md-6 mb-4 fixed-height-chart">
+              <h3 className="text-center">Distribuzione Bottiglie</h3>
+              <BarChart
+                xAxis={[
+                  {
+                    scaleType: "band",
+                    data: chartBottiglie.map((d) => d.label),
+                  },
+                ]}
+                series={[
+                  {
+                    data: chartBottiglie.map((d) => d.value),
+                    label: "Percentuale Bottiglie",
+                  },
+                ]}
+                width={400}
+                height={300}
+              />
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-12">
+              <Accordion defaultActiveKey="0" alwaysOpen>
+                {fasiLotti.map((fase, index) => (
+                  <Accordion.Item eventKey={index.toString()} key={index}>
+                    <Accordion.Header>
+                      <strong>{fase.nomeLotto}</strong>
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      {fase.lotti.length > 0 ? (
+                        <ListGroup variant="flush">
+                          {fase.lotti.map((lotto, idx) => (
+                            <ListGroup.Item
+                              key={idx}
+                              className="d-flex justify-content-between align-items-center"
+                            >
+                              <span>{lotto}</span>
+                              <Badge bg="primary">In lavorazione</Badge>
+                            </ListGroup.Item>
+                          ))}
+                        </ListGroup>
+                      ) : (
+                        <p className="text-muted">Nessun lotto presente</p>
+                      )}
+                    </Accordion.Body>
+                  </Accordion.Item>
+                ))}
+              </Accordion>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

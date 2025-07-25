@@ -3,6 +3,7 @@ import LottiVinoForm from "./LottiVinoForm";
 import LottiVinoTable from "./LottiVinoTable";
 import axiosInstance from "../../api/axiosConfig";
 import Swal from "sweetalert2";
+import Spinner from "../../components/Spinner";
 
 interface LottoVino {
   quantita: number;
@@ -42,9 +43,11 @@ const LottiVino = () => {
   const [searchNome, setSearchNome] = useState("");
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(1);
-
+  const [loading, setLoading] = useState(false);
   const [etichette, setEtichette] = useState<Etichetta[]>([]);
-  const [fasiProduzione, setFasiProduzione] = useState<FaseProduzioneOption[]>([]);
+  const [fasiProduzione, setFasiProduzione] = useState<FaseProduzioneOption[]>(
+    []
+  );
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -71,6 +74,7 @@ const LottiVino = () => {
   };
 
   const caricaLottiVino = async (pagina: number) => {
+    setLoading(true);
     try {
       const response = await axiosInstance.get(
         "http://localhost:8080/lotti-vino?page=" +
@@ -83,6 +87,8 @@ const LottiVino = () => {
       setPage(pagina);
     } catch (error) {
       console.error("Errore nel caricamento dei lotti:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -174,39 +180,43 @@ const LottiVino = () => {
         </div>
       )}
 
-      <div ref={formRef}>
-        <LottiVinoForm
-          onSuccess={handleSuccess}
-          lottoVino={lottoVinoSelezionato}
-          setMessaggioAlert={setMessaggioAlert}
-        />
-      </div>
-      <hr />
-      <input
-        type="text"
-        placeholder="Cerca per nome lotto"
-        value={searchNome}
-        onChange={(e) => setSearchNome(e.target.value)}
-      />
-      <button
-        className="custom-button btn-cerca"
-        onClick={() => caricaLottiVino(1)}
-      >
-        Cerca
-      </button>
+      {loading && <Spinner />}
 
-      <hr />
-
-      <LottiVinoTable
-        lottiVino={lottiVino}
-        etichette={etichette}
-        fasiProduzione={fasiProduzione}
-        onEdit={handleEditLotto}
-        onDelete={handleDeleteLotto}
-        page={page}
-        pageCount={pageCount}
-        onPageChange={handlePageChange}
-      />
+      {loading ? (
+        <Spinner />
+      ) : (
+        <div ref={formRef}>
+          <LottiVinoForm
+            onSuccess={handleSuccess}
+            lottoVino={lottoVinoSelezionato}
+            setMessaggioAlert={setMessaggioAlert}
+          />
+          <hr />
+          <input
+            type="text"
+            placeholder="Cerca per nome lotto"
+            value={searchNome}
+            onChange={(e) => setSearchNome(e.target.value)}
+          />
+          <button
+            className="custom-button btn-cerca"
+            onClick={() => caricaLottiVino(1)}
+          >
+            Cerca
+          </button>
+          <hr />
+          <LottiVinoTable
+            lottiVino={lottiVino}
+            etichette={etichette}
+            fasiProduzione={fasiProduzione}
+            onEdit={handleEditLotto}
+            onDelete={handleDeleteLotto}
+            page={page}
+            pageCount={pageCount}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      )}
     </div>
   );
 };

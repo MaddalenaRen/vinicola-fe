@@ -3,6 +3,7 @@ import EtichetteForm from "./EtichetteForm";
 import EtichetteTable from "./EtichetteTable";
 import axiosInstance from "../../api/axiosConfig";
 import Swal from "sweetalert2";
+import Spinner from "../../components/Spinner";
 
 interface Etichetta {
   id: number;
@@ -10,13 +11,14 @@ interface Etichetta {
   tipologiaVino: string;
   gradazioneAlcolica: number;
   dataImbottigliamento: string;
-  
 }
 
 const Etichette = () => {
   const [etichette, setEtichette] = useState<Etichetta[]>([]);
-  const [etichettaSelezionata, setEtichettaSelezionata] = useState<Etichetta | null>(null);
+  const [etichettaSelezionata, setEtichettaSelezionata] =
+    useState<Etichetta | null>(null);
   const [searchNomeEtichetta, setSearchNomeEtichetta] = useState("");
+  const [loading, setLoading] = useState(false);
   const [messaggioAlert, setMessaggioAlert] = useState<{
     tipo: "success" | "warning" | "danger";
     messaggio: string;
@@ -25,18 +27,24 @@ const Etichette = () => {
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(1);
 
-
   const formRef = useRef<HTMLDivElement>(null);
 
   const caricaEtichette = async (pagina: number) => {
+    setLoading(true);
     try {
-      const response = await axiosInstance.get("http://localhost:8080/etichette?page=" + (pagina - 1) + "&nomeEtichetta="+searchNomeEtichetta);
+      const response = await axiosInstance.get(
+        "http://localhost:8080/etichette?page=" +
+          (pagina - 1) +
+          "&nomeEtichetta=" +
+          searchNomeEtichetta
+      );
       setEtichette(response.data.content);
       setPageCount(response.data.totalPages);
       setPage(pagina);
-      
     } catch (error) {
       console.error("Errore nel caricamento delle etichette:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,7 +54,7 @@ const Etichette = () => {
 
   const handlePageChange = (nuovaPagina: number) => {
     if (nuovaPagina < 1 || nuovaPagina > pageCount) return;
-     caricaEtichette(nuovaPagina);
+    caricaEtichette(nuovaPagina);
   };
 
   const handleSuccess = () => {
@@ -83,7 +91,9 @@ const Etichette = () => {
     if (!result.isConfirmed) return;
 
     try {
-      await axiosInstance.delete(`http://localhost:8080/etichette/${etichetta.id}`);
+      await axiosInstance.delete(
+        `http://localhost:8080/etichette/${etichetta.id}`
+      );
       setMessaggioAlert({
         tipo: "success",
         messaggio: "Etichetta eliminata con successo",
@@ -117,33 +127,45 @@ const Etichette = () => {
         </div>
       )}
 
-      <div ref={formRef}>
-        <EtichetteForm
-          onSuccess={handleSuccess}
-          etichetta={etichettaSelezionata}
-          setMessaggioAlert={setMessaggioAlert}
-        />
-      </div>
+      {loading && <Spinner />}
 
-     <hr />
-      <input
-        type="text"
-        placeholder="Cerca per nome etichetta"
-        value={searchNomeEtichetta}
-        onChange={(e) => setSearchNomeEtichetta(e.target.value)}
-      />
-      <button className="custom-button btn-cerca"  onClick={() => caricaEtichette(1)}>Cerca</button>
+      {!loading && (
+        <>
+          <div ref={formRef}>
+            <EtichetteForm
+              onSuccess={handleSuccess}
+              etichetta={etichettaSelezionata}
+              setMessaggioAlert={setMessaggioAlert}
+            />
+          </div>
 
-      <hr />
+          <hr />
 
-      <EtichetteTable
-        etichette={etichette}
-        onEdit={handleEditEtichetta}
-        onDelete={handleDeleteEtichetta}
-         page={page}
-        pageCount={pageCount}
-        onPageChange={handlePageChange}
-      />
+          <input
+            type="text"
+            placeholder="Cerca per nome etichetta"
+            value={searchNomeEtichetta}
+            onChange={(e) => setSearchNomeEtichetta(e.target.value)}
+          />
+          <button
+            className="custom-button btn-cerca"
+            onClick={() => caricaEtichette(1)}
+          >
+            Cerca
+          </button>
+
+          <hr />
+
+          <EtichetteTable
+            etichette={etichette}
+            onEdit={handleEditEtichetta}
+            onDelete={handleDeleteEtichetta}
+            page={page}
+            pageCount={pageCount}
+            onPageChange={handlePageChange}
+          />
+        </>
+      )}
     </div>
   );
 };
