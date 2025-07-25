@@ -58,7 +58,7 @@ const OperatoriForm: React.FC<OperatoriFormProps> = ({
     try {
       if (operatore?.id) {
         await axiosInstance.put(
-          `http://localhost:8080/operatori/${operatore.id}`,
+          `https://extended-celeste-rennella-d07bc04c.koyeb.app/operatori/${operatore.id}`,
           {
             nome,
             cognome,
@@ -75,7 +75,7 @@ const OperatoriForm: React.FC<OperatoriFormProps> = ({
           setMessaggioAlert(null);
         }, 4000);
       } else {
-        await axiosInstance.post("http://localhost:8080/operatori", {
+        await axiosInstance.post("https://extended-celeste-rennella-d07bc04c.koyeb.app/operatori", {
           nome,
           cognome,
           reparto,
