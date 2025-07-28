@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, HashRouter } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 
@@ -13,7 +13,7 @@ import { Navigate } from "react-router-dom";
 
 function App() {
   return (
-    <Router>
+    <HashRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
 
@@ -33,7 +33,7 @@ function App() {
           <Route path="/etichette" element={<Etichette />} />
         </Route>
       </Routes>
-    </Router>
+    </HashRouter>
   );
 }
 
