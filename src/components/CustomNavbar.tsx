@@ -48,6 +48,9 @@ const CustomNavbar = () => {
             <Nav.Link as={Link} to="/operatori">
               Operatori
             </Nav.Link>
+            <Nav.Link as={Link} to="/link">
+              Link
+            </Nav.Link>
           </Nav>
           <Nav className="ms-auto">
             <NavDropdown title="Account" id="account-dropdown" align="end">

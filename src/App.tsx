@@ -10,13 +10,14 @@ import Ordini from "./pages/ordini/Ordini";
 import Etichette from "./pages/etichette/Etichette";
 import LottiVino from "./pages/lottiVino/LottiVino";
 import { Navigate } from "react-router-dom";
+import LinkPage from "./pages/LinkPage";
 
 function App() {
   return (
     <HashRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-
+        <Route path="/link" element={<LinkPage />} />
         <Route
           element={
             <ProtectedRoute>
@@ -31,6 +32,7 @@ function App() {
           <Route path="/ordini" element={<Ordini />} />
           <Route path="/lotti-vino" element={<LottiVino />} />
           <Route path="/etichette" element={<Etichette />} />
+
         </Route>
       </Routes>
     </HashRouter>
