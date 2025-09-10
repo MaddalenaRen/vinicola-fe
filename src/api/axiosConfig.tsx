@@ -2,7 +2,7 @@ import axios from "axios";
 
 
 const axiosInstance = axios.create({
-  baseURL: "https://extended-celeste-rennella-d07bc04c.koyeb.app",
+  baseURL: "http://localhost:8080",
 });
 
 

@@ -144,9 +144,7 @@ const ClientiForm: React.FC<ClientiFormProps> = ({
             onChange={handleChange}
             required
           />
-          <small className="text-muted">
-              Inserire numero di telefono.
-            </small>
+          
         </div>
 
         {formData.tipoCliente === "AZIENDA" && (

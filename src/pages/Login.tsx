@@ -28,7 +28,7 @@ function Login() {
 
     try {
       const response = await axiosInstance.post(
-        "https://extended-celeste-rennella-d07bc04c.koyeb.app/auth/login",
+        "http://localhost:8080/auth/login",
         {
           email,
           password,

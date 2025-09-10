@@ -66,13 +66,13 @@ const OrdiniForm: React.FC<OrdiniFormProps> = ({
     const fetchOptions = async () => {
       try {
         const [clientiRes, operatoriRes, etichetteRes] = await Promise.all([
-          axiosInstance.get("https://extended-celeste-rennella-d07bc04c.koyeb.app/clienti", {
+          axiosInstance.get("http://localhost:8080/clienti", {
             params: { size: 5000 },
           }),
-          axiosInstance.get("https://extended-celeste-rennella-d07bc04c.koyeb.app/operatori", {
+          axiosInstance.get("http://localhost:8080/operatori", {
             params: { size: 5000 },
           }),
-          axiosInstance.get("https://extended-celeste-rennella-d07bc04c.koyeb.app/etichette", {
+          axiosInstance.get("http://localhost:8080/etichette", {
             params: { size: 5000 },
           }),
         ]);
@@ -171,7 +171,7 @@ const OrdiniForm: React.FC<OrdiniFormProps> = ({
 
       if (ordine?.id) {
         await axiosInstance.put(
-          `https://extended-celeste-rennella-d07bc04c.koyeb.app/ordini/${ordine.id}`,
+          "http://localhost:8080/ordini",
           data
         );
         setMessaggioAlert({
@@ -182,7 +182,7 @@ const OrdiniForm: React.FC<OrdiniFormProps> = ({
           setMessaggioAlert(null);
         }, 4000);
       } else {
-        await axiosInstance.post("https://extended-celeste-rennella-d07bc04c.koyeb.app/ordini", data);
+        await axiosInstance.post("http://localhost:8080/ordini", data);
         setMessaggioAlert({
           tipo: "success",
           messaggio: "Ordine creato con successo",
