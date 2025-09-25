@@ -11,7 +11,7 @@ interface Operatore {
   cognome: string;
   reparto: string;
   numeroTelefono?: string;
-  utenteId?: string | number;
+  email: string; 
 }
 
 const Operatori = () => {

@@ -20,7 +20,7 @@ interface Operatore {
   cognome: string;
   reparto: string;
   numeroTelefono?: string;
-  utenteId?: string | number;
+  email: string; 
 }
 
 interface OperatoriTableProps {
@@ -65,6 +65,9 @@ const OperatoriTable: React.FC<OperatoriTableProps> = ({
               <Typography>
                 <strong>Telefono:</strong> {o.numeroTelefono}
               </Typography>
+              <Typography>
+                <strong>Email:</strong> {o.numeroTelefono}
+              </Typography>
               <Box mt={1} display="flex" gap={1}>
                 <Button
                   className="custom-button btn-modifica w-100"
@@ -93,6 +96,7 @@ const OperatoriTable: React.FC<OperatoriTableProps> = ({
                 <TableCell>Cognome</TableCell>
                 <TableCell>Reparto</TableCell>
                 <TableCell>Numero Telefono</TableCell>
+                <TableCell>Email</TableCell>
 
                 <TableCell align="center">Azioni</TableCell>
               </TableRow>
@@ -104,6 +108,7 @@ const OperatoriTable: React.FC<OperatoriTableProps> = ({
                   <TableCell>{o.cognome}</TableCell>
                   <TableCell>{o.reparto}</TableCell>
                   <TableCell>{o.numeroTelefono}</TableCell>
+                  <TableCell>{o.email}</TableCell>
                   <TableCell align="center">
                     <Box display="flex" gap={1} justifyContent="center">
                       <Button

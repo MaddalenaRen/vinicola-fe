@@ -7,7 +7,7 @@ interface Operatore {
   cognome: string;
   reparto: string;
   numeroTelefono?: string;
-  utenteId?: string | number;
+  email: string;
 }
 
 interface OperatoriFormProps {
@@ -30,7 +30,7 @@ const OperatoriForm: React.FC<OperatoriFormProps> = ({
   const [cognome, setCognome] = useState("");
   const [reparto, setReparto] = useState("");
   const [numeroTelefono, setNumeroTelefono] = useState("");
-  const [utenteId, setUtenteId] = useState("");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     if (operatore) {
@@ -38,7 +38,7 @@ const OperatoriForm: React.FC<OperatoriFormProps> = ({
       setCognome(operatore.cognome || "");
       setReparto(operatore.reparto || "");
       setNumeroTelefono(operatore.numeroTelefono || "");
-      setUtenteId(operatore.utenteId?.toString() || "");
+      setEmail(operatore.email || "");
     } else {
       resetForm();
     }
@@ -49,7 +49,7 @@ const OperatoriForm: React.FC<OperatoriFormProps> = ({
     setCognome("");
     setReparto("");
     setNumeroTelefono("");
-    setUtenteId("");
+    setEmail("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,37 +59,27 @@ const OperatoriForm: React.FC<OperatoriFormProps> = ({
       if (operatore?.id) {
         await axiosInstance.put(
           `http://localhost:8080/operatori/${operatore.id}`,
-          {
-            nome,
-            cognome,
-            reparto,
-            numeroTelefono,
-            utenteId,
-          }
+          { nome, cognome, reparto, numeroTelefono, email }
         );
         setMessaggioAlert({
           tipo: "warning",
           messaggio: "Operatore modificato con successo",
         });
-        setTimeout(() => {
-          setMessaggioAlert(null);
-        }, 4000);
       } else {
         await axiosInstance.post("http://localhost:8080/operatori", {
           nome,
           cognome,
           reparto,
           numeroTelefono,
-          utenteId,
+          email,
         });
         setMessaggioAlert({
           tipo: "success",
-          messaggio: "Operatore creato con successo",
+          messaggio:
+            "Operatore creato con successo (riceverà la mail di attivazione)",
         });
-        setTimeout(() => {
-          setMessaggioAlert(null);
-        }, 4000);
       }
+      setTimeout(() => setMessaggioAlert(null), 4000);
       onSuccess();
       resetForm();
     } catch (err) {
@@ -97,9 +87,7 @@ const OperatoriForm: React.FC<OperatoriFormProps> = ({
         tipo: "danger",
         messaggio: "Errore durante il salvataggio",
       });
-      setTimeout(() => {
-        setMessaggioAlert(null);
-      }, 4000);
+      setTimeout(() => setMessaggioAlert(null), 4000);
     }
   };
 
@@ -130,13 +118,20 @@ const OperatoriForm: React.FC<OperatoriFormProps> = ({
 
         <div className="col-md-6">
           <label className="form-label">Reparto</label>
-          <input
-            type="text"
-            className="form-control"
+          <select
+            className="form-select"
             value={reparto}
             onChange={(e) => setReparto(e.target.value)}
             required
-          />
+          >
+            <option value="">Seleziona un reparto</option>
+            <option value="SPEDIZIONE">SPEDIZIONE</option>
+            <option value="ETICHETTATURA">ETICHETTATURA</option>
+            <option value="IMBOTTIGLIAMENTO">IMBOTTIGLIAMENTO</option>
+            <option value="VENDEMMIA">VENDEMMIA</option>
+            <option value="FERMENTAZIONE">FERMENTAZIONE</option>
+            <option value="AFFINAMENTO">AFFINAMENTO</option>
+          </select>
         </div>
 
         <div className="col-md-6">
@@ -149,6 +144,16 @@ const OperatoriForm: React.FC<OperatoriFormProps> = ({
           />
         </div>
 
+        <div className="col-md-6">
+          <label className="form-label">Email</label>
+          <input
+            type="email"
+            className="form-control"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
 
         <div className="col-12 text-center">
           <button type="submit" className="custom-button btn-salva">

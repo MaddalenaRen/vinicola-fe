@@ -1,5 +1,6 @@
 import { Routes, Route, HashRouter } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
+import SetPasswordPage from "../src/SetPasswordPage";
 import Login from "./pages/Login";
 
 import Layout from "./pages/Layout";
@@ -16,6 +17,7 @@ function App() {
   return (
     <HashRouter>
       <Routes>
+        <Route path="/set-password" element={<SetPasswordPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/link" element={<LinkPage />} />
         <Route

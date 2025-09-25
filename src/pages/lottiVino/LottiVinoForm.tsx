@@ -84,7 +84,7 @@ const LottoVinoForm: React.FC<LottoVinoFormProps> = ({
           }
         );
         const resFasi = await axiosInstance.get(
-          "http://localhost:8080/etichette"
+          "http://localhost:8080/fasi-produzione/tipo-fasi"
         );
         setEtichette(resEtichette.data.content || []);
         setFasiProduzione(resFasi.data || []);
